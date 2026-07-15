@@ -44,7 +44,7 @@ git clone --depth=1 https://github.com/sirpdboy/luci-app-eqosplus package/luci-a
 
 # 增加bdy_g98-nas
 echo -e "\\ndefine Device/bdy_g98-nas
-\$(call Device/Legacy/rk3588,$(1))
+\$(call Device/Legacy/rk3588,\$(1))
   DEVICE_VENDOR := BDY
   DEVICE_MODEL := G98 NAS
   DEVICE_PACKAGES += kmod-r8169 kmod-nvme kmod-ata-ahci-dwc kmod-hwmon-pwmfan kmod-thermal
