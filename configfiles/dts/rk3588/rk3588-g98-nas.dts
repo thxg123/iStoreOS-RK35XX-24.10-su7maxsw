@@ -21,9 +21,9 @@
 	compatible = "bdy,g98-nas", "rockchip,rk3588";
 
 	aliases {
-		mmc0 = &sdmmc;
-		mmc1 = &sdio;
-		mmc2 = &sdhci;
+		mmc0 = &sdhci;
+		mmc1 = &sdmmc;
+		mmc2 = &sdio;
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
 	};
