@@ -39,3 +39,18 @@ git clone --depth=1 -b main https://github.com/xiaomeng9597/istoreos-settings pa
 
 # 定时限速插件
 git clone --depth=1 https://github.com/sirpdboy/luci-app-eqosplus package/luci-app-eqosplus
+
+
+
+# 增加bdy_g98-nas
+echo -e "\\ndefine Device/bdy_g98-nas
+\$(call Device/Legacy/rk3588,$(1))
+  DEVICE_VENDOR := BDY
+  DEVICE_MODEL := G98 NAS
+  DEVICE_PACKAGES += kmod-r8169 kmod-nvme kmod-ata-ahci-dwc kmod-hwmon-pwmfan kmod-thermal
+endef
+TARGET_DEVICES += bdy_g98-nas" >> target/linux/rockchip/image/legacy.mk
+
+
+# 复制 02_network 网络配置文件到 target/linux/rockchip/armv8/base-files/etc/board.d/ 目录下
+cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
