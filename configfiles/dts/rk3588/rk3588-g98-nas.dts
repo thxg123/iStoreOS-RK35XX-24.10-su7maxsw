@@ -94,7 +94,7 @@
 	};
 
   // vcc5v0-host-regulator
-	vcc5v0-host-regulator {
+    	vcc5v0_host_regulator: vcc5v0-host-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;
 		gpio = <&gpio4 RK_PB0 GPIO_ACTIVE_HIGH>;
@@ -109,7 +109,7 @@
 	};
 
   // vcc5v0-otg-regulator
-	vcc5v0-otg-regulator {
+	vcc5v0_otg_regulator: vcc5v0-otg-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;
 		gpio = <&gpio4 RK_PA7 GPIO_ACTIVE_HIGH>;
@@ -614,25 +614,31 @@
 
 /* ===== I2C / RTC ===== */
 
+// i2c2: i2c@feaa0000
 &i2c2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2m0_xfer>;
 	status = "okay";
 };
 
+// i2c3: i2c@feab0000
 &i2c3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c3m0_xfer>;
 	status = "okay";
 };
 
+// i2c4: i2c@feac0000
 &i2c4 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2c4m0_xfer>;
+	pinctrl-0 = <&i2c4m3_xfer>;
 	status = "okay";
 };
 
+// i2c6: i2c@fec80000
 &i2c6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c6m0_xfer>;
 	status = "okay";
 
 	hym8563: rtc@51 {
@@ -652,6 +658,8 @@
 
 // phy: phy@fee00000
 &combphy0_ps {
+	pinctrl-0 = <&sata0_pm_reset>;
+	pinctrl-names = "default";
 	status = "okay";
 };
 
@@ -758,6 +766,12 @@
 			rockchip,pins = <4 RK_PA7 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
+
+	sata {
+		sata0_pm_reset: sata0-pm-reset {
+			rockchip,pins = <0 RK_PD5 RK_FUNC_GPIO &pcfg_output_high>;
+		};
+	};
 };
 
 /* ===== Storage ===== */
@@ -858,21 +872,54 @@
 };
 
 /* ===== USB ===== */
+&u2phy0 {
+	status = "okay";
+};
+
+&u2phy0_otg {
+	phy-supply = <&vcc5v0_otg_regulator>;
+	status = "okay";
+};
+
+&u2phy1 {
+	status = "okay";
+};
+
+&u2phy1_otg {
+	phy-supply = <&vcc5v0_host_regulator>;
+	status = "okay";
+};
 
 // usbdp_phy0: phy@fed80000 
 &usbdp_phy0 {
 	rockchip,dp-lane-mux = <2 3>;
 	status = "okay";
+
+	u3-port {
+		#phy-cells = <0x00>;
+		status = "okay";
+	};
 };
 
 // usbdp_phy1: phy@fed90000
 &usbdp_phy1 {
 	rockchip,dp-lane-mux = <0 1 2 3>;
 	status = "okay";
+
+	u3-port {
+		#phy-cells = <0x00>;
+		maximum-speed = "high-speed";
+		status = "okay";
+	};
 };
 
 // u2phy2: usb2phy@8000
 &u2phy2 {
+	status = "okay";
+};
+
+&u2phy2_host{
+	phy-supply = <&vcc5v0_host_regulator>;
 	status = "okay";
 };
 
@@ -894,6 +941,11 @@
 
 // u2phy3: usb2phy@c000
 &u2phy3 {
+	status = "okay";
+};
+
+&u2phy3_host{
+	phy-supply = <&vcc5v0_host_regulator>;
 	status = "okay";
 };
 
