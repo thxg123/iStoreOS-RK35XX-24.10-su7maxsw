@@ -94,7 +94,7 @@
 	};
 
   // vcc5v0-host-regulator
-    	vcc5v0_host_regulator: vcc5v0-host-regulator {
+    vcc5v0_host_regulator: vcc5v0-host-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;
 		gpio = <&gpio4 RK_PB0 GPIO_ACTIVE_HIGH>;
