@@ -897,7 +897,6 @@
 
 	u3-port {
 		#phy-cells = <0x00>;
-		maximum-speed = "super-speed";
 		status = "okay";
 	};
 };
