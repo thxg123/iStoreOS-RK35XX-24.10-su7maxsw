@@ -28,6 +28,7 @@ rockchip_setup_interfaces()
 	radxa,e52c|\
 	radxa,rockpi-e|\
 	radxa,rock-5t|\
+	bdy,g98-nas|\
 	xunlong,orangepi-5-plus|\
 	xunlong,orangepi-r1-plus|\
 	xunlong,orangepi-r1-plus-lts)
@@ -36,7 +37,6 @@ rockchip_setup_interfaces()
 	friendlyarm,nanopc-t6|\
 	friendlyarm,nanopi-r5c|\
 	friendlyelec,nanopi-r5s-c1|\
-	bdy,g98-nas|\
 	hlink,h28k|\
 	radxa,e20c|\
 	radxa,e25|\
