@@ -897,18 +897,19 @@
 
 	u3-port {
 		#phy-cells = <0x00>;
+		maximum-speed = "super-speed";
 		status = "okay";
 	};
 };
 
 // usbdp_phy1: phy@fed90000
 &usbdp_phy1 {
-	rockchip,dp-lane-mux = <0 1 2 3>;
+	rockchip,dp-lane-mux = <2 3>;
 	status = "okay";
 
 	u3-port {
 		#phy-cells = <0x00>;
-		maximum-speed = "high-speed";
+		maximum-speed = "super-speed";
 		status = "okay";
 	};
 };
