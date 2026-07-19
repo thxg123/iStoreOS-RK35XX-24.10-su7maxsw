@@ -895,11 +895,6 @@
 
 // usbdp_phy0: phy@fed80000 
 &usbdp_phy0 {
-	clocks = <&cru CLK_USB4_PHY_REF>,
- 		 <&cru CLK_USB4_PHY_UTMI>,
- 		 <&cru CLK_USB4_PHY_PIPE>,
- 		 <&cru CLK_DP0_PHY>;
- 	clock-names = "ref", "utmi", "pipe", "dp";
 	rockchip,dp-lane-mux = <2 3>;
 	status = "okay";
 
@@ -911,11 +906,6 @@
 
 // usbdp_phy1: phy@fed90000
 &usbdp_phy1 {
-	clocks = <&cru CLK_USB5_PHY_REF>,
- 		 <&cru CLK_USB5_PHY_UTMI>,
- 		 <&cru CLK_USB5_PHY_PIPE>,
- 		 <&cru CLK_DP1_PHY>;
- 	clock-names = "ref", "utmi", "pipe", "dp";
 	rockchip,dp-lane-mux = <2 3>;
 	status = "okay";
 
@@ -986,7 +976,9 @@
 
 // hdmi@fde80000
 &hdmi0 {
-	frl-enable-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_HIGH>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmim0_tx0_cec &hdmim0_tx0_hpd &hdmim0_tx0_scl &hdmim0_tx0_sda>;
+	enable-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
