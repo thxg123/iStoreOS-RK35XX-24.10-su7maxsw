@@ -895,22 +895,32 @@
 
 // usbdp_phy0: phy@fed80000 
 &usbdp_phy0 {
+	clocks = <&cru CLK_USB4_PHY_REF>,
+ 		 <&cru CLK_USB4_PHY_UTMI>,
+ 		 <&cru CLK_USB4_PHY_PIPE>,
+ 		 <&cru CLK_DP0_PHY>;
+ 	clock-names = "ref", "utmi", "pipe", "dp";
 	rockchip,dp-lane-mux = <2 3>;
 	status = "okay";
 
 	u3-port {
-		#phy-cells = <0x00>;
+		#phy-cells = <0>;
 		status = "okay";
 	};
 };
 
 // usbdp_phy1: phy@fed90000
 &usbdp_phy1 {
+	clocks = <&cru CLK_USB5_PHY_REF>,
+ 		 <&cru CLK_USB5_PHY_UTMI>,
+ 		 <&cru CLK_USB5_PHY_PIPE>,
+ 		 <&cru CLK_DP1_PHY>;
+ 	clock-names = "ref", "utmi", "pipe", "dp";
 	rockchip,dp-lane-mux = <2 3>;
 	status = "okay";
 
 	u3-port {
-		#phy-cells = <0x00>;
+		#phy-cells = <0>;
 		maximum-speed = "super-speed";
 		status = "okay";
 	};
