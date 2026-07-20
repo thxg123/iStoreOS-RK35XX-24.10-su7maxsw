@@ -1,9 +1,6 @@
 --- a/net/dsa/Makefile
 +++ b/net/dsa/Makefile
-@@ -38,3 +38,4 @@
- obj-$(CONFIG_NET_DSA_TAG_SJA1105) += tag_sja1105.o
- obj-$(CONFIG_NET_DSA_TAG_TRAILER) += tag_trailer.o
- obj-$(CONFIG_NET_DSA_TAG_XRS700X) += tag_xrs700x.o
+@@ -1,0 +1 @@
 +obj-y += tag_yt921x.o
 --- /dev/null
 +++ b/net/dsa/tag_yt921x.c
