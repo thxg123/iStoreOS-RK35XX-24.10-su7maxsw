@@ -638,13 +638,6 @@
 	status = "okay";
 };
 
-// i2c5: i2c@fead0000
-&i2c5 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c5m2_xfer>;
-	status = "okay";
-};
-
 // i2c6: i2c@fec80000
 &i2c6 {
 	pinctrl-names = "default";
@@ -987,7 +980,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&hdmim0_tx0_cec &hdmim0_tx0_hpd &hdmim0_tx0_scl &hdmim0_tx0_sda>;
 	enable-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_HIGH>;
-	ddc-i2c-bus = <&i2c5>;
 	status = "okay";
 };
 
