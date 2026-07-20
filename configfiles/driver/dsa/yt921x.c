@@ -950,7 +950,7 @@ yt921x_dsa_get_pause_stats(struct dsa_switch *ds, int port,
 }
 
 static int
-yt921x_set_eee(struct yt921x_priv *priv, int port, struct ethtool_keee *e)
+yt921x_set_eee(struct yt921x_priv *priv, int port, struct ethtool_eee *e)
 {
 	/* Poor datasheet for EEE operations; don't ask if you are confused */
 
@@ -990,7 +990,7 @@ yt921x_set_eee(struct yt921x_priv *priv, int port, struct ethtool_keee *e)
 }
 
 static int
-yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_keee *e)
+yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_eee *e)
 {
 	struct yt921x_priv *priv = to_yt921x_priv(ds);
 	int res;
@@ -2894,14 +2894,11 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	.get_stats64		= yt921x_dsa_get_stats64,
 	.get_pause_stats	= yt921x_dsa_get_pause_stats,
 	/* eee */
-	.support_eee		= dsa_supports_eee,
 	.set_mac_eee		= yt921x_dsa_set_mac_eee,
 	/* mtu */
 	.port_change_mtu	= yt921x_dsa_port_change_mtu,
 	.port_max_mtu		= yt921x_dsa_port_max_mtu,
 	/* hsr */
-	.port_hsr_leave		= dsa_port_simple_hsr_leave,
-	.port_hsr_join		= dsa_port_simple_hsr_join,
 	/* mirror */
 	.port_mirror_del	= yt921x_dsa_port_mirror_del,
 	.port_mirror_add	= yt921x_dsa_port_mirror_add,
@@ -2954,7 +2951,7 @@ static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
 
-		disable_delayed_work_sync(&pp->mib_read);
+		cancel_delayed_work_sync(&pp->mib_read);
 	}
 
 	dsa_unregister_switch(&priv->ds);
