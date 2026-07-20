@@ -4,6 +4,7 @@ index 7a12345..b987654 100644
 +++ b/net/dsa/Makefile
 @@ -1,0 +1 @@
 +obj-y += tag_yt921x.o
+
 diff --git a/net/dsa/tag_yt921x.c b/net/dsa/tag_yt921x.c
 new file mode 100644
 index 0000000..f34c2d1
