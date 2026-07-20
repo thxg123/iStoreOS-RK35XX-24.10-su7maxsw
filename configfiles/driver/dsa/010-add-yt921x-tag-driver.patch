@@ -1,29 +1,13 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: David Yang <mmyangfl@gmail.com>
-Date: Tue, 21 Jul 2026 00:00:00 +0000
-Subject: [PATCH] net: dsa: add support for Motorcomm YT921x switch tag
-
-Add DSA tag driver for Motorcomm YT921x switches.
-
-Signed-off-by: David Yang <mmyangfl@gmail.com>
----
- net/dsa/Makefile     |   1 +
- net/dsa/tag_yt921x.c | 146 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 147 insertions(+)
- create mode 100644 net/dsa/tag_yt921x.c
-
-diff --git a/net/dsa/Makefile b/net/dsa/Makefile
-index 7a12345..b987654 100644
 --- a/net/dsa/Makefile
 +++ b/net/dsa/Makefile
-@@ -1,0 +1 @@
+@@ -38,3 +38,4 @@
+ obj-$(CONFIG_NET_DSA_TAG_SJA1105) += tag_sja1105.o
+ obj-$(CONFIG_NET_DSA_TAG_TRAILER) += tag_trailer.o
+ obj-$(CONFIG_NET_DSA_TAG_XRS700X) += tag_xrs700x.o
 +obj-y += tag_yt921x.o
-diff --git a/net/dsa/tag_yt921x.c b/net/dsa/tag_yt921x.c
-new file mode 100644
-index 000000000000..1234567890ab
 --- /dev/null
 +++ b/net/dsa/tag_yt921x.c
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,143 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * Motorcomm YT921x Switch Extended CPU Port Tagging
