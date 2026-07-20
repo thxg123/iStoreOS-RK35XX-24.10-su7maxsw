@@ -59,10 +59,8 @@ cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-
 mkdir -p target/linux/generic/files/drivers/net/dsa
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.c target/linux/generic/files/drivers/net/dsa/yt921x.c
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.h target/linux/generic/files/drivers/net/dsa/yt921x.h
-cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/tag_yt921x.c target/linux/generic/files/drivers/net/dsa/tag_yt921x.c
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile target/linux/generic/files/drivers/net/dsa/Makefile
 ls target/linux/generic/files/drivers/net/dsa
 
 
-# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/tag_yt921x.c net/dsa/tag_yt921x.c
-# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile2 net/dsa/Makefile
+cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/010-add-yt921x-tag-driver.patch target/linux/rockchip/patches-6.6/010-add-yt921x-tag-driver.patch
