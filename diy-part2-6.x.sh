@@ -64,3 +64,5 @@ ls target/linux/generic/files/drivers/net/dsa
 
 
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/010-add-yt921x-tag-driver.patch target/linux/rockchip/patches-6.6/010-add-yt921x-tag-driver.patch
+
+dos2unix target/linux/rockchip/patches-6.6/*.patch
