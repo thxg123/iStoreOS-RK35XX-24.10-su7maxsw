@@ -56,13 +56,14 @@ TARGET_DEVICES += bdy_g98-nas" >> target/linux/rockchip/image/legacy.mk
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
 
-mkdir -p target/linux/generic/files/drivers/net/dsa
-# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.c target/linux/generic/files/drivers/net/dsa/yt921x.c
-# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.h target/linux/generic/files/drivers/net/dsa/yt921x.h
-# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile target/linux/generic/files/drivers/net/dsa/Makefile
-ls target/linux/generic/files/drivers/net/dsa
+mkdir -p target/linux/rockchip/files/drivers/net/dsa
+# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.c target/linux/rockchip/files/drivers/net/dsa/yt921x.c
+# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.h target/linux/rockchip/files/drivers/net/dsa/yt921x.h
+# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile target/linux/rockchip/files/drivers/net/dsa/Makefile
+ls target/linux/rockchip/files/drivers/net/dsa
 
 
 # cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/010-add-yt921x-tag-driver.patch target/linux/rockchip/patches-6.6/010-add-yt921x-tag-driver.patch
+
 # cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/011-net-dsa-add-tag_yt921x-source.patch target/linux/rockchip/patches-6.6/011-net-dsa-add-tag_yt921x-source.patch
 # cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile3 target/linux/rockchip/Makefile
