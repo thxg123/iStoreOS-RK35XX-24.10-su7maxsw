@@ -20,10 +20,8 @@ DEFAULT_PACKAGES += uboot-envtools partx-utils e2fsprogs mkf2fs kmod-gpio-button
 KERNELNAME:=Image dtbs
 
 define Kernel/Patch/YT921X
-	grep -q "obj-m += tag_yt921x.o" $(LINUX_DIR)/net/dsa/Makefile || \
-	echo 'obj-m += tag_yt921x.o' >> $(LINUX_DIR)/net/dsa/Makefile
-	grep -q "obj-m += yt921x.o" $(LINUX_DIR)/files/drivers/net/dsa/Makefile || \
-	echo 'obj-m += yt921x.o' >> $(LINUX_DIR)/files/drivers/net/dsa/Makefile
+	grep -q "obj-y += tag_yt921x.o" $(LINUX_DIR)/net/dsa/Makefile || \
+	echo 'obj-y += tag_yt921x.o' >> $(LINUX_DIR)/net/dsa/Makefile
 endef
 
 KERNEL_PATCH_HOOKS += YT921X
