@@ -144,6 +144,9 @@ jobs:
         cd openwrt
         rm -rf build_dir/target-aarch64_generic_musl/linux-rockchip_armv8
         rm -rf staging_dir/target-aarch64_generic_musl
+        rm -rf build_dir staging_dir tmp
+        apt update && apt install -y dos2unix
+        find target/linux/rockchip/patches-6.6/ -name "*.patch" -exec dos2unix {} \;
         export TERM=dumb
         export NO_MENUCONFIG=1
         make target/linux/patch V=1
