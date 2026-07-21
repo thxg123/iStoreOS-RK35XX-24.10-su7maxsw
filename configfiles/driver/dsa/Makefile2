@@ -1,5 +1,0 @@
-#
-# Makefile for Motorcomm YT921x Switch
-#
-
-obj-y += tag_yt921x.o
