@@ -1,5 +1,0 @@
---- a/net/dsa/Makefile
-+++ b/net/dsa/Makefile
-@@ -1 +1,2 @@
-+obj-y += tag_yt921x.o
- # SPDX-License-Identifier: GPL-2.0
