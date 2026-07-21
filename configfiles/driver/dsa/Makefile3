@@ -22,8 +22,8 @@ KERNELNAME:=Image dtbs
 define Kernel/Patch/YT921X
 	grep -q "obj-y += tag_yt921x.o" $(LINUX_DIR)/net/dsa/Makefile || \
 	echo 'obj-y += tag_yt921x.o' >> $(LINUX_DIR)/net/dsa/Makefile
-	grep -q "obj-y += yt921x.o" $(LINUX_DIR)/drivers/net/dsa/Makefile || \
-	echo 'obj-y += yt921x.o' >> $(LINUX_DIR)/drivers/net/dsa/Makefile
+	grep -q "obj-y += yt921x.o" $(LINUX_DIR)/files/drivers/net/dsa/Makefile || \
+	echo 'obj-y += yt921x.o' >> $(LINUX_DIR)/files/drivers/net/dsa/Makefile
 endef
 
 KERNEL_PATCH_HOOKS += YT921X
