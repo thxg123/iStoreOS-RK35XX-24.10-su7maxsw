@@ -23,7 +23,7 @@ CONFIG_KPROBES=y
 CONFIG_NET_DSA_YT921X=m
 CONFIG_NET_DSA_TAG_YT921X=m
 CONFIG_NET_DSA_YT921X_DEBUG=y
-CONFIG_NET_DSA_YT921X_CR881X=n" >> target/linux/rockchip/armv8/config-6.6
+CONFIG_NET_DSA_YT921X_CR881X=y" >> target/linux/rockchip/armv8/config-6.6
 ls target/linux/rockchip/armv8/config-6.6
 
 
