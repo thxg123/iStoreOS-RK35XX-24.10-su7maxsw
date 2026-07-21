@@ -145,7 +145,9 @@ jobs:
         rm -rf build_dir/target-aarch64_generic_musl/linux-rockchip_armv8
         rm -rf staging_dir/target-aarch64_generic_musl
         export TERM=dumb
-        make target/linux/prepare V=1
+        export NO_MENUCONFIG=1
+        make target/linux/patch V=1
+        make target/linux/configure V=1
         ls build_dir/target-aarch64_generic_musl/linux-rockchip_armv8/linux-6.6.141/net/dsa
 
     - name: 下载软件包
