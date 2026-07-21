@@ -141,15 +141,12 @@ jobs:
 
     - name: 预处理内核(解压+自动应用patches补丁)
       run: |
-        cd openwrt
-        rm -rf build_dir staging_dir tmp dl/*.tar.xz
-        apt update && apt install -y dos2unix
-        find target/linux/rockchip/patches-6.6 -name "*.patch" -exec dos2unix {} \;
-        make target/linux/clean V=1
-        make target/linux/unpack V=1
-        make target/linux/patch-only V=1
-        make target/linux/defconfig V=1
-        ls -la build_dir/target-aarch64_generic_musl/linux-rockchip_armv8/linux-6.6.141/net/dsa
+        # cd openwrt
+        KERNEL_TAR=$(ls dl/linux-6.6.*.tar.* 2>/dev/null | head -1)
+        mkdir -p /tmp/kernel-inspect
+        tar xf "$KERNEL_TAR" -C /tmp/kernel-inspect --strip-components=1
+        cd /tmp/kernel-inspect
+        cat net/dsa/Makefile
 
     - name: 下载软件包
       id: package
