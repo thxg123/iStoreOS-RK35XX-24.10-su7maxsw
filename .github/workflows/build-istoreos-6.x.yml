@@ -139,15 +139,6 @@ jobs:
         # TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         # TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-    - name: 预处理内核(解压+自动应用patches补丁)
-      run: |
-        # cd openwrt
-        KERNEL_TAR=$(ls dl/linux-6.6.*.tar.* 2>/dev/null | head -1)
-        mkdir -p /tmp/kernel-inspect
-        tar xf "$KERNEL_TAR" -C /tmp/kernel-inspect --strip-components=1
-        cd /tmp/kernel-inspect
-        cat net/dsa/Makefile
-
     - name: 下载软件包
       id: package
       run: |
@@ -169,14 +160,6 @@ jobs:
     - name: 检查磁盘空间
       if: (!cancelled())
       run: df -hT
-
-    - name: 加入交换机补丁
-      run: |
-        cd openwrt
-        ls
-        ls build_dir/target-aarch64_generic_musl/linux-rockchip_armv8/linux-6.6.141/net/dsa
-        ls /home/runner/work/iStoreOS-RK35XX-24.10-su7max/iStoreOS-RK35XX-24.10-su7max/workdir/openwrt/build_dir/target-aarch64_generic_musl/linux-rockchip_armv8/linux-6.6.141/net/dsa
-        cat /home/runner/work/iStoreOS-RK35XX-24.10-su7max/iStoreOS-RK35XX-24.10-su7max/workdir/openwrt/build_dir/target-aarch64_generic_musl/linux-rockchip_armv8/linux-6.6.141/net/dsa/Makefile.rej
 
     - name: 上传 bin 文件夹
       uses: actions/upload-artifact@main
