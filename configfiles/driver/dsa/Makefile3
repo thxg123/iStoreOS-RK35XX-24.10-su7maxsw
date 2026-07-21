@@ -29,5 +29,3 @@ endef
 KERNEL_PATCH_HOOKS += YT921X
 
 $(eval $(call BuildTarget))
-
-
