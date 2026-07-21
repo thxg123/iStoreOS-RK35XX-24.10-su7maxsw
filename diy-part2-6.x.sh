@@ -55,11 +55,13 @@ TARGET_DEVICES += bdy_g98-nas" >> target/linux/rockchip/image/legacy.mk
 # 复制 02_network 网络配置文件到 target/linux/rockchip/armv8/base-files/etc/board.d/ 目录下
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
+cat target/linux/rockchip/files/drivers/net/dsa/Makefile
 
 mkdir -p target/linux/rockchip/files/drivers/net/dsa
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.c target/linux/rockchip/files/drivers/net/dsa/yt921x.c
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.h target/linux/rockchip/files/drivers/net/dsa/yt921x.h
 echo "obj-m += yt921x.o" >> target/linux/rockchip/files/drivers/net/dsa/Makefile
+cat target/linux/rockchip/files/drivers/net/dsa/Makefile
 ls target/linux/rockchip/files/drivers/net/dsa
 
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/010-add-yt921x-tag-driver.patch target/linux/rockchip/patches-6.6/010-add-yt921x-tag-driver.patch
