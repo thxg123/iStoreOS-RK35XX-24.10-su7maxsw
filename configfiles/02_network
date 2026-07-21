@@ -110,6 +110,9 @@ rockchip_setup_macs()
 
 	case "$board" in
 	armsom,sige7|\
+	radxa,rock-5t|\
+	bdy,g98-nas|\
+	xunlong,orangepi-5-plus|\
 	friendlyarm,nanopc-t6|\
 	friendlyarm,nanopi-r2c|\
 	friendlyarm,nanopi-r2s|\
