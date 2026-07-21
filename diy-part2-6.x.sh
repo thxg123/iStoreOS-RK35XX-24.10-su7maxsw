@@ -19,7 +19,10 @@ cp -a $GITHUB_WORKSPACE/configfiles/etc/* package/base-files/files/etc/
 
 # 追加自定义内核配置项
 echo "CONFIG_PSI=y
-CONFIG_KPROBES=y" >> target/linux/rockchip/armv8/config-6.6
+CONFIG_KPROBES=y
+CONFIG_NET_DSA_YT921X=m
+CONFIG_NET_DSA_TAG_YT921X=m
+CONFIG_NET_DSA_YT921X_DEBUG=y" >> target/linux/rockchip/armv8/config-6.6
 
 
 # 集成CPU性能跑分脚本
@@ -55,16 +58,7 @@ TARGET_DEVICES += bdy_g98-nas" >> target/linux/rockchip/image/legacy.mk
 # 复制 02_network 网络配置文件到 target/linux/rockchip/armv8/base-files/etc/board.d/ 目录下
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
-cat target/linux/rockchip/files/drivers/net/dsa/Makefile
 
-mkdir -p target/linux/rockchip/files/drivers/net/dsa
-cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.c target/linux/rockchip/files/drivers/net/dsa/yt921x.c
-cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/yt921x.h target/linux/rockchip/files/drivers/net/dsa/yt921x.h
-echo "obj-m += yt921x.o" >> target/linux/rockchip/files/drivers/net/dsa/Makefile
-cat target/linux/rockchip/files/drivers/net/dsa/Makefile
-ls target/linux/rockchip/files/drivers/net/dsa
-
-cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/010-add-yt921x-tag-driver.patch target/linux/rockchip/patches-6.6/010-add-yt921x-tag-driver.patch
-
-# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/011-net-dsa-add-tag_yt921x-source.patch target/linux/rockchip/patches-6.6/011-net-dsa-add-tag_yt921x-source.patch
-cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile3 target/linux/rockchip/Makefile
+mkdir -p target/linux/generic/files/drivers/net/dsa
+cp -a $GITHUB_WORKSPACE/configfiles/driver/dsa/* target/linux/generic/files/drivers/net/dsa
+ls target/linux/generic/files/drivers/net/dsa

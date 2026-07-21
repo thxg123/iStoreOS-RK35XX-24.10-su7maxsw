@@ -1,0 +1,37 @@
+=== 三重修复 diff (yt921x_chip.c) ===
+--- PORT9_ISOLATION: ctrl = 0 (was GENMASK)
+--- FILTER_UNK_UCAST: ctrl = BIT(10) (was BIT(10)|cpu_ports_mask)
+--- ACT_UNK_UCAST: FORWARD (was DROP for primary cpu)
+			 * upper bits for forward compatibility.
+			 */
+			ctrl = 0; /* YT9215S: tag-steering does NOT bypass isolation */
+			res = yt921x_reg_write(priv, YT921X_PORTn_ISOLATION(port),
+					       ctrl);
+---
+	 * 0x7ff blackholes unknown unicast destined for router MAC on this board.
+	 */
+	ctrl = BIT(10); /* CPU port must receive unknown unicast floods */
+	res = yt921x_reg_write(priv, YT921X_FILTER_UNK_UCAST, ctrl);
+	if (res)
+		return res;
+	res = yt921x_reg_write(priv, YT921X_FILTER_UNK_MCAST, ctrl);
+	if (res)
+		return res;
+	/* Keep stock-safe defaults for flood filters until semantics are fully
+	 * mapped on YT9215.
+	 */
+	priv->flood_unk_ucast_base_mask = BIT(10);
+	priv->flood_mcast_base_mask = BIT(10);
+	priv->flood_bcast_base_mask = BIT(10);
+---
+	 * ingress from CPU ports is still dropped.
+	 */
+	ctrl = 0;
+	cpu_ports_mask = priv->cpu_ports_mask;
+	for_each_set_bit(port, &cpu_ports_mask, YT921X_PORT_NUM) {
+		ctrl &= ~YT921X_ACT_UNK_ACTn_M(port);
+		ctrl |= YT921X_ACT_UNK_ACTn_FORWARD(port);
+	}
+	res = yt921x_reg_write(priv, YT921X_ACT_UNK_UCAST, ctrl);
+	if (res)
+		return res;
