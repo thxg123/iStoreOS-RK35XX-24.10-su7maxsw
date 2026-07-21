@@ -6,6 +6,12 @@
 #ifndef __YT921X_H
 #define __YT921X_H
 
+#include <linux/types.h>
+#include <linux/bits.h>
+#include <linux/bitfield.h>
+#include <linux/mutex.h>
+#include <linux/workqueue.h>
+#include <linux/phy.h>
 #include <net/dsa.h>
 
 #define YT921X_SMI_SWITCHID_M		GENMASK(3, 2)
