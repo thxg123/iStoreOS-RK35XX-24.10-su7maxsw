@@ -65,4 +65,4 @@ ls target/linux/generic/files/drivers/net/dsa
 
 cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/010-add-yt921x-tag-driver.patch target/linux/rockchip/patches-6.6/010-add-yt921x-tag-driver.patch
 # cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/011-net-dsa-add-tag_yt921x-source.patch target/linux/rockchip/patches-6.6/011-net-dsa-add-tag_yt921x-source.patch
-cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile3 target/linux/rockchip/Makefile
+# cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/Makefile3 target/linux/rockchip/Makefile
