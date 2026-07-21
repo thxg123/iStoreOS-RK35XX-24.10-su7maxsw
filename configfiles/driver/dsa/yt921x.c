@@ -2933,7 +2933,7 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 
 static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 {
-	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
+	struct yt921x_priv *priv = dev_get_drvdata(&mdiodev->dev);
 
 	if (!priv)
 		return;
@@ -2943,7 +2943,7 @@ static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 
 static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 {
-	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
+	struct yt921x_priv *priv = dev_get_drvdata(&mdiodev->dev);
 
 	if (!priv)
 		return;
@@ -3015,7 +3015,7 @@ static int yt921x_mdio_probe(struct mdio_device *mdiodev)
 	ds->phylink_mac_ops = &yt921x_phylink_mac_ops;
 	ds->num_ports = YT921X_PORT_NUM;
 
-	mdiodev_set_drvdata(mdiodev, priv);
+	dev_set_drvdata(&mdiodev->dev, priv);
 	dev_info(dev, "Motorcomm YT921x switch probed: switchid=%u, addr=0x%02x\n",
 		 switchid, mdiodev->addr);
 		 
