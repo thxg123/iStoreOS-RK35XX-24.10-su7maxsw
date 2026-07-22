@@ -1,0 +1,16 @@
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -55,6 +55,7 @@ enum dsa_tag_protocol {
+ 	DSA_TAG_PROTO_RTL8_4,
+ 	DSA_TAG_PROTO_RZN1_A5PSW,
++	DSA_TAG_PROTO_YT921X,
+ 	DSA_TAG_PROTO_MAX,
+ };
+ 
+--- a/include/uapi/linux/if_ether.h
++++ b/include/uapi/linux/if_ether.h
+@@ -122,6 +122,7 @@
+ #define ETH_P_8021Q	0x8100		/* 802.1Q VLAN Extended Header  */
++#define ETH_P_YT921X	0x9988		/* Motorcomm YT921X specific TAG */
+ #define ETH_P_8021AD	0x88A8		/* 802.1ad Service VLAN		*/
+ #define ETH_P_802_EX1	0x88B5		/* 802.1 Local Experimental 1.  */

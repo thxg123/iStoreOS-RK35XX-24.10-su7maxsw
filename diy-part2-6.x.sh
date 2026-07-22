@@ -64,3 +64,6 @@ cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-
 mkdir -p target/linux/generic/files/drivers/net/dsa
 cp -a $GITHUB_WORKSPACE/configfiles/driver/dsa/* target/linux/generic/files/drivers/net/dsa
 ls target/linux/generic/files/drivers/net/dsa
+
+
+cp -f $GITHUB_WORKSPACE/configfiles/driver/dsa/999-net-dsa-add-yt921x-header-defs.patch target/linux/rockchip/patches-6.6/999-net-dsa-add-yt921x-header-defs.patch
