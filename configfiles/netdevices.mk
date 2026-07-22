@@ -2097,7 +2097,7 @@ define KernelPackage/yt921x
   DEPENDS:=+kmod-dsa
   KCONFIG:=CONFIG_NET_DSA_YT921X CONFIG_NET_DSA_TAG_YT921X
   FILES:= \
-    $(LINUX_DIR)/drivers/net/dsa/yt921x_driver.ko \
+    $(LINUX_DIR)/drivers/net/dsa/yt-switch/yt921x_driver.ko \
     $(LINUX_DIR)/net/dsa/tag_yt921x.ko
   AUTOLOAD:=$(call AutoProbe,yt921x_driver tag_yt921x)
 endef
