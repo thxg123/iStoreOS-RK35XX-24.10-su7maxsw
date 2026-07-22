@@ -157,6 +157,12 @@ jobs:
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         echo "status=success" >> ${GITHUB_OUTPUT}
 
+    - name: 查找ko文件
+      run: |
+        cd openwrt
+        find . -type f -name "*.ko"
+        find build_dir/target-*/linux-*/linux-*/drivers/net/ -name "*.ko"
+
     - name: 检查磁盘空间
       if: (!cancelled())
       run: df -hT
