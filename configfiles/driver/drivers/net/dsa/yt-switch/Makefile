@@ -8,4 +8,3 @@ yt921x_driver-y := \
 	yt921x_port.o \
 	yt921x_chip.o \
 	yt921x_debugfs.o yt921x_acl.o
-obj-$(CONFIG_NET_DSA_TAG_YT921X) += tag_yt921x.o

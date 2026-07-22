@@ -25,7 +25,7 @@
 
 #include <linux/etherdevice.h>
 
-#include "dsa_priv.h"
+#include "tag.h"
 
 #define YT921X_TAG_NAME	"yt921x"
 
