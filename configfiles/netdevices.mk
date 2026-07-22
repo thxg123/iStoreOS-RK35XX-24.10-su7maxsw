@@ -2095,7 +2095,8 @@ define KernelPackage/yt921x
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Motorcomm YT9215 Ethernet Switch DSA support
   DEPENDS:=+kmod-dsa
-  KCONFIG:=CONFIG_NET_DSA_YT921X CONFIG_NET_DSA_TAG_YT921X
+  KCONFIG:=CONFIG_NET_DSA_YT921X \
+  CONFIG_NET_DSA_TAG_YT921X
   FILES:= \
     $(LINUX_DIR)/drivers/net/dsa/yt-switch/yt921x_driver.ko \
     $(LINUX_DIR)/net/dsa/tag_yt921x.ko
