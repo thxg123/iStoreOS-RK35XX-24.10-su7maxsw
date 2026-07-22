@@ -830,17 +830,6 @@
 		speed = <1000>;
 	};
 
-	/*
-	gmac0_mtl_rx_setup: rx-queues-config {
-		snps,rx-queues-to-use = <1>;
-		queue0 {};
-	};
-
-	gmac0_mtl_tx_setup: tx-queues-config {
-		snps,tx-queues-to-use = <1>;
-		queue0 {};
-	};
-	*/
 };
 
 // gmac1: ethernet@fe1c0000
@@ -861,17 +850,6 @@
 		speed = <1000>;
 	};
 
-	/*
-	gmac1_mtl_rx_setup: rx-queues-config {
-		snps,rx-queues-to-use = <1>;
-		queue0 {};
-	};
-
-	gmac1_mtl_tx_setup: tx-queues-config {
-		snps,tx-queues-to-use = <1>;
-		queue0 {};
-	};
-	*/
 };
 
 /* ===== UART ===== */
