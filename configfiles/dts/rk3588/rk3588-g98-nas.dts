@@ -818,6 +818,9 @@
 	phy-mode = "rgmii-rxid";
 	tx_delay = <0x44>;
 	pinctrl-0 = <&gmac0_miim &gmac0_tx_bus2 &gmac0_rx_bus2 &gmac0_rgmii_clk &gmac0_rgmii_bus>;
+	snps,reset-gpio = <&gpio3 0x18 0x01>;
+	snps,reset-active-low;
+	snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
 	pinctrl-names = "default";
 	status = "okay";
 
@@ -846,6 +849,9 @@
 	phy-mode = "rgmii-rxid";
 	tx_delay = <0x42>;
 	pinctrl-0 = <&gmac1_miim &gmac1_tx_bus2 &gmac1_rx_bus2 &gmac1_rgmii_clk &gmac1_rgmii_bus>;
+	snps,reset-gpio = <&gpio4 0x0b 0x01>;
+	snps,reset-active-low;
+	snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
 	pinctrl-names = "default";
 	status = "okay";
 
@@ -1033,23 +1039,123 @@
 
 /* ===== Switch ===== */
 &mdio0 {
-  status = "okay";
-    
-  ytgsw@1 {
-		compatible = "motorcomm,yt9215s";
-		motorcomm,mdio = <&mdio0>;
-		motorcomm,id = <0x01>;
+	switch@1d {
+		compatible = "motorcomm,yt9215";
+		reg = <0x1d>;
 		status = "okay";
-  };
+		dsa,member = <1 0>;
+
+		mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			sw1phy1: phy@1 { reg = <1>; };
+			sw1phy2: phy@2 { reg = <2>; };
+			sw1phy3: phy@3 { reg = <3>; };
+			sw1phy4: phy@4 { reg = <4>; };
+		};
+
+		ethernet-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			ethernet-port@1 {
+				reg = <1>;
+				label = "lan5";
+				phy-mode = "internal";
+				phy-handle = <&sw1phy1>;
+			};
+			ethernet-port@2 {
+				reg = <2>;
+				label = "lan6";
+				phy-mode = "internal";
+				phy-handle = <&sw1phy2>;
+			};
+			ethernet-port@3 {
+				reg = <3>;
+				label = "lan7";
+				phy-mode = "internal";
+				phy-handle = <&sw1phy3>;
+			};
+			ethernet-port@4 {
+				reg = <4>;
+				label = "lan8";
+				phy-mode = "internal";
+				phy-handle = <&sw1phy4>;
+			};
+			ethernet-port@9 {
+				reg = <9>;
+				label = "cpu";
+				ethernet = <&gmac0>;
+				phy-mode = "rgmii-txid";
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+					pause;
+				};
+			};
+		};
+	};
 };
 
 &mdio1 {
-  status = "okay";
-    
-  ytgsw@0 {
-		compatible = "motorcomm,yt9215s";
-		motorcomm,mdio = <&mdio1>;
-		motorcomm,id = <0x00>;
+	switch@1d {
+		compatible = "motorcomm,yt9215";
+		reg = <0x1d>;
 		status = "okay";
-  };
+		dsa,member = <0 0>;
+
+		mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			sw0phy1: phy@1 { reg = <1>; };
+			sw0phy2: phy@2 { reg = <2>; };
+			sw0phy3: phy@3 { reg = <3>; };
+			sw0phy4: phy@4 { reg = <4>; };
+		};
+
+		ethernet-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			ethernet-port@1 {
+				reg = <1>;
+				label = "lan1";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy1>;
+			};
+			ethernet-port@2 {
+				reg = <2>;
+				label = "lan2";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy2>;
+			};
+			ethernet-port@3 {
+				reg = <3>;
+				label = "lan3";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy3>;
+			};
+			ethernet-port@4 {
+				reg = <4>;
+				label = "lan4";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy4>;
+			};
+			ethernet-port@9 {
+				reg = <9>;
+				label = "cpu";
+				ethernet = <&gmac1>;
+				phy-mode = "rgmii-txid";
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+					pause;
+				};
+			};
+		};
+	};
 };
