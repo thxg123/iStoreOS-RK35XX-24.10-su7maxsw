@@ -60,7 +60,7 @@ rockchip_setup_interfaces()
 		ucidef_set_interfaces_lan_wan 'eth1 eth2 eth3 eth4 eth5' 'eth0'
 		;;
 	bdy,g98-nas)
-		ucidef_set_interfaces_lan_wan 'eth1 lan1 lan2 lan3 lan4 lan5 lan6 lan7 lan8' 'eth0'
+		ucidef_set_interfaces_lan_wan 'eth1 eth2 eth3 lan1 lan2 lan3 lan4 lan5 lan6 lan7 lan8' 'eth0'
 		;;
 	easepi,r1|easepi,r1-lite|\
 	linkease,easepi-r1)
