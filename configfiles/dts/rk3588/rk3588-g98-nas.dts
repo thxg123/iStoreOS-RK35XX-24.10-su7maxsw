@@ -1065,7 +1065,8 @@
 				reg = <9>;
 				label = "cpu";
 				ethernet = <&gmac0>;
-				motorcomm,conduit-role = "cpu";
+				motorcomm,conduit-role = "primary-conduit";
+				conduit-role = "primary-conduit";
 				phy-mode = "rgmii-txid";
 
 				fixed-link {
@@ -1127,7 +1128,8 @@
 				reg = <9>;
 				label = "cpu";
 				ethernet = <&gmac1>;
-				motorcomm,conduit-role = "cpu";
+				motorcomm,conduit-role = "primary-conduit";
+				conduit-role = "primary-conduit";
 				phy-mode = "rgmii-txid";
 
 				fixed-link {
