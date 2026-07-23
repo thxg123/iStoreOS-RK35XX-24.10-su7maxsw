@@ -2959,17 +2959,14 @@ static const struct file_operations yt921x_debugfs_fops = {
 int yt921x_proc_init(struct yt921x_priv *priv)
 {
 	struct device *dev = yt921x_dev(priv);
-	char filename[64];
 
 	mutex_init(&priv->proc_lock);
 	yt921x_proc_reply_help(priv);
 
-	snprintf(filename, sizeof(filename), "yt921x_cmd_%s", dev_name(dev));
-
-	priv->proc_cmd = debugfs_create_file(filename, 0600, NULL, priv,
+	priv->proc_cmd = debugfs_create_file("yt921x_cmd", 0600, NULL, priv,
 					     &yt921x_debugfs_fops);
 	if (IS_ERR_OR_NULL(priv->proc_cmd)) {
-		dev_warn(dev, "failed to create debugfs %s\n", filename);
+		dev_warn(dev, "failed to create debugfs yt921x_cmd\n");
 		priv->proc_cmd = NULL;
 	}
 	return 0;
