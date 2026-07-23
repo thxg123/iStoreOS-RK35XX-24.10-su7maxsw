@@ -19,7 +19,7 @@
 / {
 	model = "BDY-G98 NAS";
 	compatible = "bdy,g98-nas", "rockchip,rk3588";
-	eth_order = "0003:31:00.0,0002:21:00.0";
+	eth_order = "0002:21:00.0,0003:31:00.0";
 
 	aliases {
 		mmc0 = &sdhci;
