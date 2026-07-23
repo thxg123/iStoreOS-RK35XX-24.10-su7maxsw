@@ -28,7 +28,6 @@ rockchip_setup_interfaces()
 	radxa,e52c|\
 	radxa,rockpi-e|\
 	radxa,rock-5t|\
-	bdy,g98-nas|\
 	xunlong,orangepi-5-plus|\
 	xunlong,orangepi-r1-plus|\
 	xunlong,orangepi-r1-plus-lts)
@@ -59,6 +58,9 @@ rockchip_setup_interfaces()
 		;;
 	roceos,k60pro)
 		ucidef_set_interfaces_lan_wan 'eth1 eth2 eth3 eth4 eth5' 'eth0'
+		;;
+	bdy,g98-nas)
+		ucidef_set_interfaces_lan_wan 'eth1 eth2 eth3 lan1 lan2 lan3 lan4 lan5 lan6 lan7 lan8' 'eth0'
 		;;
 	easepi,r1|easepi,r1-lite|\
 	linkease,easepi-r1)
