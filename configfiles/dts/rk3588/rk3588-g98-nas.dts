@@ -684,22 +684,60 @@
 
 // pcie2x1l0: pcie@fe170000
 &pcie2x1l0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcie2_0_rst>;
-	supports-clkreq;
-	reset-gpios = <&gpio1 RK_PB4 GPIO_ACTIVE_HIGH>;
-	vpcie3v3-supply = <&vcc3v3_nvme>;
-	status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&pcie2_0_rst>;
+    supports-clkreq;
+    reset-gpios = <&gpio1 RK_PB4 GPIO_ACTIVE_HIGH>;
+    vpcie3v3-supply = <&vcc3v3_nvme>;
+    status = "okay";
+
+    pcie@0,0 {
+        reg = <0x00200000 0 0 0 0>;
+        #address-cells = <3>;
+        #size-cells = <2>;
+
+        bus-range = <0x20 0x2f>;
+        device_type = "pci";
+        ranges;
+
+        rtl8125_1: pcie-eth@0,0 {
+        compatible = "pci10ec,8125";
+            label = "eth0";
+            reg = <0x210000 0 0 0 0>;
+            r8125,led0 = <0x102b>;
+            r8125,led1 = <0x0200>;
+            r8125,led2 = <0x002a>;
+        };
+    };
 };
 
 // pcie2x1l1: pcie@fe180000
 &pcie2x1l1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcie2_1_rst>;
-	supports-clkreq;
-	reset-gpios = <&gpio4 RK_PA2 GPIO_ACTIVE_HIGH>;
-	vpcie3v3-supply = <&vcc3v3_nvme>;
-	status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&pcie2_1_rst>;
+    supports-clkreq;
+    reset-gpios = <&gpio4 RK_PA2 GPIO_ACTIVE_HIGH>;
+    vpcie3v3-supply = <&vcc3v3_nvme>;
+    status = "okay";
+
+    pcie@0,0 {
+        reg = <0x00300000 0 0 0 0>;
+        #address-cells = <3>;
+        #size-cells = <2>;
+
+        bus-range = <0x30 0x3f>;
+        device_type = "pci";
+        ranges;
+
+        rtl8125_2: pcie-eth@0,0 {
+        compatible = "pci10ec,8125";
+            label = "eth1";
+            reg = <0x310000 0 0 0 0>;
+            r8125,led0 = <0x102b>;
+            r8125,led1 = <0x0200>;
+            r8125,led2 = <0x002a>;
+        };
+    };
 };
 
 // pcie2x1l2: pcie@fe190000

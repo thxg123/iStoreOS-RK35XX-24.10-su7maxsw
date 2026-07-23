@@ -2959,23 +2959,27 @@ static const struct file_operations yt921x_debugfs_fops = {
 int yt921x_proc_init(struct yt921x_priv *priv)
 {
 	struct device *dev = yt921x_dev(priv);
+	struct dentry *dir;
 
 	mutex_init(&priv->proc_lock);
 	yt921x_proc_reply_help(priv);
 
-	priv->proc_cmd = debugfs_create_file("yt921x_cmd", 0600, NULL, priv,
-					     &yt921x_debugfs_fops);
-	if (IS_ERR_OR_NULL(priv->proc_cmd)) {
-		dev_warn(dev, "failed to create debugfs yt921x_cmd\n");
-		priv->proc_cmd = NULL;
+	dir = debugfs_create_dir(dev_name(dev), NULL);
+	if (IS_ERR_OR_NULL(dir)) {
+		dev_warn(dev, "failed to create debugfs dir %s\n", dev_name(dev));
+		mutex_destroy(&priv->proc_lock);
+		return 0;
 	}
+	priv->proc_cmd = dir;
+	debugfs_create_file("yt921x_cmd", 0600, dir, priv, &yt921x_debugfs_fops);
 	return 0;
 }
 
 void yt921x_proc_exit(struct yt921x_priv *priv)
 {
-	if (priv->proc_cmd)
-		debugfs_remove(priv->proc_cmd);
+	if (priv->proc_cmd) {
+		debugfs_remove_recursive(priv->proc_cmd);
+	}
 	priv->proc_cmd = NULL;
 	mutex_destroy(&priv->proc_lock);
 }
