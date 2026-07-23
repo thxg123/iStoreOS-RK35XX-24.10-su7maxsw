@@ -800,6 +800,8 @@
 
 // sdio: mmc@fe2d0000
 &sdio {
+	pinctrl-0 = <>;
+	pinctrl-names = "default";
 	status = "disabled";
 };
 
