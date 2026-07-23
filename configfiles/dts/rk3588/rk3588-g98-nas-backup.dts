@@ -19,7 +19,7 @@
 / {
 	model = "BDY-G98 NAS";
 	compatible = "bdy,g98-nas", "rockchip,rk3588";
-	eth_order = "0002:21:00.0,0003:31:00.0";
+	eth_order = "0003:31:00.0,0002:21:00.0";
 
 	aliases {
 		mmc0 = &sdhci;
@@ -135,7 +135,7 @@
 
 	leds {
 		compatible = "gpio-leds";
-		status = "disabled";
+		status = "okay";
 
 		hdd-led {
 			default-state = "off";
@@ -592,14 +592,14 @@
 
 /* ===== I2C / RTC ===== */
 
-// i2c@fea90000
+// i2c1: i2c@fea90000
 &i2c1 {
     pinctrl-names = "default";
     pinctrl-0 = <&i2c1m0_xfer>;
     status = "disabled";
 };
 
-// i2c@feaa0000
+// i2c2: i2c@feaa0000
 &i2c2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2m0_xfer>;
@@ -690,6 +690,25 @@
 	reset-gpios = <&gpio1 RK_PB4 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_nvme>;
 	status = "okay";
+
+	pcie@0,0 {
+		reg = <0x00200000 0 0 0 0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+
+		bus-range = <0x20 0x2f>;
+		device_type = "pci";
+		ranges;
+
+		rtl8125_1: pcie-eth@0,0 {
+		compatible = "pci10ec,8125";
+			label = "eth1";
+			reg = <0x210000 0 0 0 0>;
+			r8125,led0 = <0x102b>;
+			r8125,led1 = <0x0200>;
+			r8125,led2 = <0x002a>;
+		};
+	};
 };
 
 // pcie2x1l1: pcie@fe180000
@@ -700,6 +719,25 @@
 	reset-gpios = <&gpio4 RK_PA2 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_nvme>;
 	status = "okay";
+
+	pcie@0,0 {
+		reg = <0x00300000 0 0 0 0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+
+		bus-range = <0x30 0x3f>;
+		device_type = "pci";
+		ranges;
+
+		rtl8125_2: pcie-eth@0,0 {
+		compatible = "pci10ec,8125";
+			label = "eth0";
+			reg = <0x310000 0 0 0 0>;
+			r8125,led0 = <0x102b>;
+			r8125,led1 = <0x0200>;
+			r8125,led2 = <0x002a>;
+		};
+	};
 };
 
 // pcie2x1l2: pcie@fe190000
@@ -800,6 +838,8 @@
 
 // sdio: mmc@fe2d0000
 &sdio {
+	/delete-property/ pinctrl-0;
+	/delete-property/ pinctrl-names;
 	status = "disabled";
 };
 
@@ -818,13 +858,16 @@
 	phy-mode = "rgmii-rxid";
 	tx_delay = <0x44>;
 	pinctrl-0 = <&gmac0_miim &gmac0_tx_bus2 &gmac0_rx_bus2 &gmac0_rgmii_clk &gmac0_rgmii_bus>;
+	snps,reset-gpio = <&gpio3 RK_PD0 GPIO_ACTIVE_LOW>;
+	snps,reset-active-low;
+	snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
 	pinctrl-names = "default";
 	status = "disabled";
 
 	fixed-link {
+		speed = <1000>;
 		full-duplex;
 		pause;
-		speed = <1000>;
 	};
 
 	/*
@@ -846,13 +889,16 @@
 	phy-mode = "rgmii-rxid";
 	tx_delay = <0x42>;
 	pinctrl-0 = <&gmac1_miim &gmac1_tx_bus2 &gmac1_rx_bus2 &gmac1_rgmii_clk &gmac1_rgmii_bus>;
+	snps,reset-gpio = <&gpio4 RK_PB3 GPIO_ACTIVE_LOW>;
+	snps,reset-active-low;
+	snps,reset-delays-us = <0x00 0x4e20 0x186a0>;
 	pinctrl-names = "default";
 	status = "disabled";
 
 	fixed-link {
+		speed = <1000>;
 		full-duplex;
 		pause;
-		speed = <1000>;
 	};
 
 	/*
@@ -901,6 +947,7 @@
 
 	u3-port {
 		#phy-cells = <0>;
+		maximum-speed = "super-speed";
 		status = "okay";
 	};
 };
@@ -1028,6 +1075,27 @@
 
 // tsadc: tsadc@fec00000
 &tsadc {
+	status = "okay";
+};
+
+// sfc: spi@fe2b0000
+&sfc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&fspim2_pins>;
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <104000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <1>;
+		vcc-supply = <&vcc_3v3_s3>;
+	};
+};
+
+// dfi@fe060000
+&dfi {
 	status = "okay";
 };
 
