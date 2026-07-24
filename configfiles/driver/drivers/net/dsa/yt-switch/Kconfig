@@ -7,6 +7,7 @@ config NET_DSA_YT921X
 config NET_DSA_YT921X_DEBUG
 	bool "Motorcomm YT9215 debug command interface"
 	depends on NET_DSA_YT921X
+	default n
 	help
 	  Enable debug command interface under debugfs for yt921x.
 
