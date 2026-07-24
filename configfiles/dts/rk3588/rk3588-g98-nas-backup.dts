@@ -701,12 +701,15 @@
 		ranges;
 
 		rtl8125_1: pcie-eth@0,0 {
-		compatible = "pci10ec,8125";
+		compatible = "pci10ec,8126", "pci10ec,8125";
 			label = "eth1";
 			reg = <0x210000 0 0 0 0>;
 			r8125,led0 = <0x102b>;
+			r8126,led0 = <0x102b>;
 			r8125,led1 = <0x0200>;
+			r8126,led1 = <0x0200>;
 			r8125,led2 = <0x002a>;
+			r8126,led2 = <0x002a>;
 		};
 	};
 };
@@ -730,12 +733,15 @@
 		ranges;
 
 		rtl8125_2: pcie-eth@0,0 {
-		compatible = "pci10ec,8125";
+		compatible = "pci10ec,8126", "pci10ec,8125";
 			label = "eth0";
 			reg = <0x310000 0 0 0 0>;
 			r8125,led0 = <0x102b>;
+			r8126,led0 = <0x102b>;
 			r8125,led1 = <0x0200>;
+			r8126,led1 = <0x0200>;
 			r8125,led2 = <0x002a>;
+			r8126,led2 = <0x002a>;
 		};
 	};
 };
