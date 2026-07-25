@@ -687,7 +687,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie2_0_rst>;
 	supports-clkreq;
-	reset-gpios = <&gpio1 RK_PB4 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpio4 RK_PB4 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_nvme>;
 	status = "okay";
 
@@ -782,7 +782,7 @@
 
 	pcie {
 		pcie2_0_rst: pcie2-0-rst {
-			rockchip,pins = <1 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <4 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		pcie2_1_rst: pcie2-1-rst {
@@ -862,7 +862,6 @@
 &gmac0 {
 	clock_in_out = "output";
 	phy-mode = "rgmii-rxid";
-	tx_delay = <0x44>;
 	pinctrl-0 = <&gmac0_miim &gmac0_tx_bus2 &gmac0_rx_bus2 &gmac0_rgmii_clk &gmac0_rgmii_bus>;
 	snps,reset-gpio = <&gpio3 RK_PD0 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
@@ -882,7 +881,6 @@
 &gmac1 {
 	clock_in_out = "output";
 	phy-mode = "rgmii-rxid";
-	tx_delay = <0x42>;
 	pinctrl-0 = <&gmac1_miim &gmac1_tx_bus2 &gmac1_rx_bus2 &gmac1_rgmii_clk &gmac1_rgmii_bus>;
 	snps,reset-gpio = <&gpio4 RK_PB3 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
