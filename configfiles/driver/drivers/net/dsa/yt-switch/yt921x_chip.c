@@ -117,6 +117,7 @@ int yt921x_dsa_port_setup(struct dsa_switch *ds, int port)
     struct net_device *master = cpu_dp ? cpu_dp->master : NULL;
     int res;
 
+    /* Generate per-port MAC: master MAC + port index offset */
     if (dp->type == DSA_PORT_TYPE_USER && master) {
         ether_addr_copy(dp->mac, master->dev_addr);
         dp->mac[5] = (dp->mac[5] + port) & 0xff;
