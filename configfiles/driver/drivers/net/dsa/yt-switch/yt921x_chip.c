@@ -113,12 +113,12 @@ int yt921x_dsa_port_setup(struct dsa_switch *ds, int port)
 {
     struct yt921x_priv *priv = yt921x_to_priv(ds);
     struct dsa_port *dp = dsa_to_port(ds, port);
+    struct dsa_port *cpu_dp = dp->cpu_dp;
+    struct net_device *master = cpu_dp ? cpu_dp->master : NULL;
     int res;
 
-    /* Generate per-port MAC: master MAC + port index offset */
-    if (dp->type == DSA_PORT_TYPE_USER && dp->cpu_dp &&
-        dp->cpu_dp->master) {
-        ether_addr_copy(dp->mac, dp->cpu_dp->master->dev_addr);
+    if (dp->type == DSA_PORT_TYPE_USER && master) {
+        ether_addr_copy(dp->mac, master->dev_addr);
         dp->mac[5] = (dp->mac[5] + port) & 0xff;
         dp->mac[0] |= 0x02; /* locally administered */
     }
