@@ -315,7 +315,6 @@ board_set_iface_smp_affinity() {
 	armsom,sige7|\
 	armsom,sige7-v1|\
 	radxa,rock-5t|\
-	bdy,g98-nas|\
 	xunlong,orangepi-5-plus|\
 	cyber,cyber3588-aib)
 		if ethtool -i eth0 | grep -Fq 'driver: r8169'; then
@@ -331,7 +330,7 @@ board_set_iface_smp_affinity() {
 		fi
 		;;
 	bdy,g98-nas)
-		if ethtool -i eth0 | grep -Fq 'driver: r8169'; then
+		if ethtool -i eth2 | grep -Fq 'driver: r8169'; then
 			set_iface_cpumask 4 "eth2"
 			set_iface_cpumask 8 "eth3"
 		else
