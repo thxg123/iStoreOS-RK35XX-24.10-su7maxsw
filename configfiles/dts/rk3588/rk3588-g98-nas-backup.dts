@@ -41,6 +41,7 @@
 		io-channel-names = "buttons";
 		keyup-threshold-microvolt = <1800000>;
 		poll-interval = <100>;
+		status = "okay";
 
 		vol-up-key {
 			label = "volume up";

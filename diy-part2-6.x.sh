@@ -20,6 +20,7 @@ cp -a $GITHUB_WORKSPACE/configfiles/etc/* package/base-files/files/etc/
 # 追加自定义内核配置项
 echo "CONFIG_PSI=y
 CONFIG_KPROBES=y
+CONFIG_NET_DSA=y
 CONFIG_NET_DSA_YT921X=y
 CONFIG_NET_DSA_TAG_YT921X=y
 CONFIG_NET_DSA_YT921X_DEBUG=n
