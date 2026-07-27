@@ -111,24 +111,27 @@ yt921x_dsa_get_tag_protocol(struct dsa_switch *ds, int port,
 
 int yt921x_dsa_port_setup(struct dsa_switch *ds, int port)
 {
-    struct yt921x_priv *priv = yt921x_to_priv(ds);
-    struct dsa_port *dp = dsa_to_port(ds, port);
-    struct dsa_port *cpu_dp = dp->cpu_dp;
-    struct net_device *master = cpu_dp ? cpu_dp->master : NULL;
-    int res;
+	struct yt921x_priv *priv = yt921x_to_priv(ds);
+	struct dsa_port *dp = dsa_to_port(ds, port);
+	struct dsa_port *cpu_dp = dp->cpu_dp;
+	struct net_device *master = cpu_dp ? cpu_dp->master : NULL;
+	int res;
 
-    /* Generate per-port MAC: master MAC + port index offset */
-    if (dp->type == DSA_PORT_TYPE_USER && master) {
-        ether_addr_copy(dp->mac, master->dev_addr);
-        dp->mac[5] = (dp->mac[5] + port) & 0xff;
-        dp->mac[0] |= 0x02; /* locally administered */
-    }
+	if (!dp)
+		return -EINVAL;
 
-    mutex_lock(&priv->reg_lock);
-    res = yt921x_port_setup(priv, port);
-    mutex_unlock(&priv->reg_lock);
+	/* Generate per-port MAC: master MAC + port index offset */
+	if (dp->type == DSA_PORT_TYPE_USER && master) {
+		ether_addr_copy(dp->mac, master->dev_addr);
+		dp->mac[5] = (dp->mac[5] + port) & 0xff;
+		dp->mac[0] |= 0x02; /* locally administered */
+	}
 
-    return res;
+	mutex_lock(&priv->reg_lock);
+	res = yt921x_port_setup(priv, port);
+	mutex_unlock(&priv->reg_lock);
+
+	return res;
 }
 
 int
