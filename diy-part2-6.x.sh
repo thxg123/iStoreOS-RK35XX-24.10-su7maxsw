@@ -57,7 +57,8 @@ endef
 TARGET_DEVICES += bdy_g98-nas" >> target/linux/rockchip/image/legacy.mk
 
 
-# 复制 02_network 网络配置文件到 target/linux/rockchip/armv8/base-files/etc/board.d/ 目录下
+# 复制配置文件到对应的目录下
+cp -f $GITHUB_WORKSPACE/configfiles/init.sh target/linux/rockchip/armv8/base-files/lib/board/init.sh
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
 
