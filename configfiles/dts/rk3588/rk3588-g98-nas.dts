@@ -27,8 +27,8 @@
 		mmc2 = &sdio;
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
-		ethernet2 = &r8125_10;
-		ethernet3 = &r8125_11;
+		ethernet2 = &pcie_eth2;
+		ethernet3 = &pcie_eth3;
 	};
 
 	chosen {
@@ -696,14 +696,16 @@
 		device_type = "pci";
 		ranges;
 
-		r8125_10: pcie-eth@20,0 {
+		pcie_eth2: pcie-eth@20,0 {
 			compatible = "pci10ec,8125";
 			local-mac-address = [4e 40 ca c9 65 d2];
-			reg = <0x210000 0 0 0 0>;
+			reg = <0x000000 0 0 0 0>;
 			/* 2.5G网口led灯，如果要闪烁设置为：<0x002b 0x002b 0x0000 0x0000>;
 			 * 该网口灯无法单独控制，只能一起闪，一起灭，一起亮！！！ 
 			*/ 
 			led-data = <0x002a 0x002a 0x0000 0x0000>;
+			realtek,led-data = <0x002a 0x002a 0x0000 0x0000>;
+			realtek,led-feature = /bits/ 8 <0xC0>;
 		};
 	};
 };
@@ -726,14 +728,16 @@
 		device_type = "pci";
 		ranges;
 
-		r8125_11: pcie-eth@30,0 {
+		pcie_eth3: pcie-eth@30,0 {
 			compatible = "pci10ec,8125";
 			local-mac-address = [4e 40 ca c9 65 d1];
-			reg = <0x310000 0 0 0 0>;
+			reg = <0x000000 0 0 0 0>;
 			/* 2.5G网口led灯，如果要闪烁设置为：<0x002b 0x002b 0x0000 0x0000>;
 			 * 该网口灯无法单独控制，只能一起闪，一起灭，一起亮！！！ 
 			*/ 
 			led-data = <0x002a 0x002a 0x0000 0x0000>;
+			realtek,led-data = <0x002a 0x002a 0x0000 0x0000>;
+			realtek,led-feature = /bits/ 8 <0xC0>;
 		};
 	};
 };
