@@ -170,14 +170,13 @@
 &spi2 {
 	assigned-clocks = <&cru CLK_SPI2>;
 	assigned-clock-rates = <200000000>;
+	num-cs = <1>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi2m2_cs0 &spi2m2_pins>;
-	num-cs = <1>;
 	status = "okay";
 
 	rk806single: pmic@0 {
 		compatible = "rockchip,rk806";
-		spi-max-frequency = <1000000>;
 		reg = <0x0>;
 
 		interrupt-parent = <&gpio0>;
@@ -187,6 +186,21 @@
 		pinctrl-0 = <&pmic_pins>, <&rk806_dvs1_null>,
 			    <&rk806_dvs2_null>, <&rk806_dvs3_null>;
 
+		/* 0: restart PMU;
+		 * 1: reset all the power off reset registers,
+		 *    forcing the state to switch to ACTIVE mode;
+		 * 2: Reset all the power off reset registers,
+		 *    forcing the state to switch to ACTIVE mode,
+		 *    and simultaneously pull down the RESETB PIN for 5mS before releasing
+		 */
+		// pmic-reset-func = <1>;
+		rockchip,reset-mode = <1>;
+		/*
+		 * pwrkey long press off time, unit is seconds.
+		 * available values are 6, 8, 10, and 12 seconds. default is 6 seconds.
+		 */
+		long-press-off-time-sec = <10>;
+		spi-max-frequency = <1000000>;
 		system-power-controller;
 
 		vcc1-supply = <&vcc5v0_sys>;
@@ -377,25 +391,25 @@
 				};
 			};
 
-			vdd_1v2_s0: pldo-reg3 {
+			avdd_1v2_s0: pldo-reg3 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
-				regulator-name = "vdd_1v2_s0";
+				regulator-name = "avdd_1v2_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
-			vcc_3v3_s0: pldo-reg4 {
+			vcc_3v3_s0: avcc_3v3_s0: pldo-reg4 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-ramp-delay = <12500>;
-				regulator-name = "vcc_3v3_s0";
+				regulator-name = "avcc_3v3_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
@@ -441,12 +455,12 @@
 				};
 			};
 
-			vdd_ddr_pll_s0: nldo-reg2 {
+			vdd_ddr_pll_s0: avdd_ddr_pll_s0: nldo-reg2 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <850000>;
 				regulator-max-microvolt = <850000>;
-				regulator-name = "vdd_ddr_pll_s0";
+				regulator-name = "avdd_ddr_pll_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
@@ -454,24 +468,36 @@
 				};
 			};
 
-			vdd_0v75_s0: nldo-reg3 {
+			avdd_0v75_s0: nldo-reg3 {
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-min-microvolt = <750000>;
-				regulator-max-microvolt = <750000>;
-				regulator-name = "vdd_0v75_s0";
+				regulator-min-microvolt = <837500>;
+				regulator-max-microvolt = <837500>;
+				regulator-name = "avdd_0v75_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
 				};
 			};
 
-			vdd_0v85_s0: nldo-reg4 {
+			vdd_0v85_s0: avdd_0v85_s0: nldo-reg4 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <850000>;
 				regulator-max-microvolt = <850000>;
-				regulator-name = "vdd_0v85_s0";
+				regulator-name = "avdd_0v85_s0";
+
+				regulator-state-mem {
+					regulator-off-in-suspend;
+				};
+			};
+
+			vdd_0v75_s0: nldo-reg5 {
+				regulator-always-on;
+				regulator-boot-on;
+				regulator-min-microvolt = <750000>;
+				regulator-max-microvolt = <750000>;
+				regulator-name = "vdd_0v75_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
