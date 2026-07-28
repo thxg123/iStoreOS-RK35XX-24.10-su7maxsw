@@ -377,12 +377,12 @@
 				};
 			};
 
-			avdd_1v2_s0: pldo-reg3 {
+			vdd_1v2_s0: pldo-reg3 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
-				regulator-name = "avdd_1v2_s0";
+				regulator-name = "vdd_1v2_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
@@ -454,12 +454,12 @@
 				};
 			};
 
-			avdd_0v75_s0: nldo-reg3 {
+			vdd_0v75_s0: nldo-reg3 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt = <750000>;
-				regulator-name = "avdd_0v75_s0";
+				regulator-name = "vdd_0v75_s0";
 
 				regulator-state-mem {
 					regulator-off-in-suspend;
