@@ -1087,68 +1087,6 @@
 		mdio {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			sw0phy1: phy@1 { reg = <1>; };
-			sw0phy2: phy@2 { reg = <2>; };
-			sw0phy3: phy@3 { reg = <3>; };
-			sw0phy4: phy@4 { reg = <4>; };
-		};
-
-		ethernet-ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			ethernet-port@1 {
-				reg = <1>;
-				label = "lan1";
-				phy-mode = "internal";
-				phy-handle = <&sw0phy1>;
-			};
-			ethernet-port@2 {
-				reg = <2>;
-				label = "lan2";
-				phy-mode = "internal";
-				phy-handle = <&sw0phy2>;
-			};
-			ethernet-port@3 {
-				reg = <3>;
-				label = "lan3";
-				phy-mode = "internal";
-				phy-handle = <&sw0phy3>;
-			};
-			ethernet-port@4 {
-				reg = <4>;
-				label = "lan4";
-				phy-mode = "internal";
-				phy-handle = <&sw0phy4>;
-			};
-			ethernet-port@9 {
-				reg = <9>;
-				label = "cpu";
-				ethernet = <&gmac0>;
-				motorcomm,conduit-role = "primary-conduit";
-				conduit-role = "primary-conduit";
-				phy-mode = "rgmii-txid";
-
-				fixed-link {
-					speed = <1000>;
-					full-duplex;
-					pause;
-				};
-			};
-		};
-	};
-};
-
-&mdio1 {
-	switch@1d {
-		compatible = "motorcomm,yt9215";
-		reg = <29>;
-		status = "okay";
-		dsa,member = <0 0>;
-
-		mdio {
-			#address-cells = <1>;
-			#size-cells = <0>;
 			sw1phy1: phy@1 { reg = <1>; };
 			sw1phy2: phy@2 { reg = <2>; };
 			sw1phy3: phy@3 { reg = <3>; };
@@ -1182,6 +1120,68 @@
 				label = "lan8";
 				phy-mode = "internal";
 				phy-handle = <&sw1phy4>;
+			};
+			ethernet-port@9 {
+				reg = <9>;
+				label = "cpu";
+				ethernet = <&gmac0>;
+				motorcomm,conduit-role = "primary-conduit";
+				conduit-role = "primary-conduit";
+				phy-mode = "rgmii-txid";
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+					pause;
+				};
+			};
+		};
+	};
+};
+
+&mdio1 {
+	switch@1d {
+		compatible = "motorcomm,yt9215";
+		reg = <29>;
+		status = "okay";
+		dsa,member = <0 0>;
+
+		mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			sw0phy1: phy@1 { reg = <1>; };
+			sw0phy2: phy@2 { reg = <2>; };
+			sw0phy3: phy@3 { reg = <3>; };
+			sw0phy4: phy@4 { reg = <4>; };
+		};
+
+		ethernet-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			ethernet-port@1 {
+				reg = <1>;
+				label = "lan1";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy1>;
+			};
+			ethernet-port@2 {
+				reg = <2>;
+				label = "lan2";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy2>;
+			};
+			ethernet-port@3 {
+				reg = <3>;
+				label = "lan3";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy3>;
+			};
+			ethernet-port@4 {
+				reg = <4>;
+				label = "lan4";
+				phy-mode = "internal";
+				phy-handle = <&sw0phy4>;
 			};
 			ethernet-port@9 {
 				reg = <9>;
