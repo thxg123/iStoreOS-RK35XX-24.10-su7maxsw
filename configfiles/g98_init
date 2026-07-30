@@ -13,6 +13,7 @@ start() {
         bdy,g98-nas)
             ethtool -K eth0 tso off gso off gro off
             ethtool -K eth1 tso off gso off gro off
+
             if ! [ -s /etc/config/g98_init_lock ]; then
 # cat <<EOF > /etc/config/g98_init_lock
 # true
@@ -23,6 +24,7 @@ start() {
             else
                 echo "false"
             fi
+
             ;;
         *)
             return 1
