@@ -11,12 +11,14 @@ start() {
     local board=$(board_name)
     case "$board" in
         bdy,g98-nas)
-            if ! [ -s /etc/config/dsa_lock ]; then
-cat <<EOF > /etc/config/dsa_lock
+            if ! [ -s /etc/config/g98_init_lock ]; then
+cat <<EOF > /etc/config/g98_init_lock
 true
 EOF
-                rm -f /etc/config/network
-                /etc/init.d/network restart
+                ethtool -K eth0 tso off
+                ethtool -K eth1 tso off
+                # rm -f /etc/config/network
+                # /etc/init.d/network restart
                 echo "true"
             else
                 echo "false"
