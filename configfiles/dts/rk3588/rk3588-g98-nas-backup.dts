@@ -769,6 +769,16 @@
 	reset-gpios = <&gpio3 RK_PD4 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_pcie30>;
 	status = "okay";
+
+	pcie@0,0 {
+		reg = <0x00100000 0 0 0 0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+
+		nvme1: pcie@10,0 {
+			reg = <0x000000 0 0 0 0>;
+		};
+	};
 };
 
 // pcie3x4: pcie@fe150000 
@@ -779,6 +789,16 @@
 	reset-gpios = <&gpio4 RK_PB6 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_pcie30>;
 	status = "okay";
+
+	pcie@0,0 {
+		reg = <0x00000000 0 0 0 0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+
+		nvme0: pcie@0,0 {
+			reg = <0x000000 0 0 0 0>;
+		};
+	};
 };
 
 /* ===== Pin Control ===== */
