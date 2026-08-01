@@ -292,7 +292,6 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 	}
 }
 
-
 static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 {
 	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
@@ -325,7 +324,6 @@ static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 	/* Restore original netdev_ops if we hijacked them */
 	if (priv->orig_conduit_ops)
 		WRITE_ONCE(priv->conduit->netdev_ops, priv->orig_conduit_ops);
-
 
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
