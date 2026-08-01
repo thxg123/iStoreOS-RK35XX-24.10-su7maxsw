@@ -1362,6 +1362,12 @@ struct yt921x_priv {
 #endif
 
 	u16 eee_ports_mask;
+
+	struct delayed_work disable_tso_work;
+	struct net_device *conduit;
+	const struct net_device_ops *orig_conduit_ops;
+	struct net_device_ops conduit_ops;
+
 	u16 flood_unk_ucast_base_mask;
 	u16 flood_mcast_base_mask;
 	u16 flood_bcast_base_mask;

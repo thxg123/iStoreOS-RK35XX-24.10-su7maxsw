@@ -236,6 +236,63 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	.devlink_param_set	= yt921x_devlink_param_set,
 };
 
+static netdev_features_t
+yt921x_conduit_fix_features(struct net_device *dev,
+			    netdev_features_t features)
+{
+	/* Strip offloads that the 8-byte YT921x DSA tag corrupts.
+	 * Stmmac's ndo_fix_features would re-add TSO from hardware
+	 * capability (dma_cap.tsoen) — we intercept at the ops level
+	 * to strip it after stmmac's logic, so it never sticks.
+	 */
+	features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
+		      NETIF_F_GSO | NETIF_F_GRO);
+	return features;
+}
+
+static void yt921x_disable_tso_work(struct work_struct *work)
+{
+	struct yt921x_priv *priv = container_of(work, struct yt921x_priv,
+						 disable_tso_work.work);
+	struct dsa_switch *ds = &priv->ds;
+
+	for (int port = 0; port < ds->num_ports; port) {
+		struct dsa_port *dp = dsa_to_port(ds, port);
+
+		if (dp->type != DSA_PORT_TYPE_CPU || !dp->conduit)
+			continue;
+
+		priv->conduit = dp->conduit;
+
+		/* Hijack ndo_fix_features: copy the conduit's ops table
+		 * and replace only ndo_fix_features so stmmac can never
+		 * restore TSO/GSO/GRO after we strip them.
+		 */
+		priv->orig_conduit_ops = priv->conduit->netdev_ops;
+		memcpy(&priv->conduit_ops, priv->orig_conduit_ops,
+		       sizeof(priv->conduit_ops));
+		priv->conduit_ops.ndo_fix_features =
+			yt921x_conduit_fix_features;
+		WRITE_ONCE(priv->conduit->netdev_ops,
+			   &priv->conduit_ops);
+
+		rtnl_lock();
+		dp->conduit->hw_features &=
+			~(NETIF_F_TSO | NETIF_F_TSO6 |
+			  NETIF_F_GSO | NETIF_F_GRO);
+		dp->conduit->wanted_features &=
+			~(NETIF_F_TSO | NETIF_F_TSO6 |
+			  NETIF_F_GSO | NETIF_F_GRO);
+		netdev_update_features(dp->conduit);
+		rtnl_unlock();
+
+		netdev_info(dp->conduit,
+			    "Hijacked ndo_fix_features for YT921x DSA tag\n");
+		break;
+	}
+}
+
+
 static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 {
 	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
@@ -262,6 +319,13 @@ static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 
 	if (!priv)
 		return;
+
+	cancel_delayed_work_sync(&priv->disable_tso_work);
+
+	/* Restore original netdev_ops if we hijacked them */
+	if (priv->orig_conduit_ops)
+		WRITE_ONCE(priv->conduit->netdev_ops, priv->orig_conduit_ops);
+
 
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
@@ -444,6 +508,15 @@ static int yt921x_mdio_probe(struct mdio_device *mdiodev)
 		mutex_destroy(&priv->reg_lock);
 		return res;
 	}
+
+	/* YT921x 8-byte DSA tag corrupts conduit TSO segmentation.
+	 * Conduit (end1) netdev may not be fully ready during probe,
+	 * so schedule deferred work to disable TSO/GSO/GRO once
+	 * the netdevice is fully initialized.
+	 * Equivalent to: ethtool -K end1 tso off gso off gro off
+	 */
+	INIT_DELAYED_WORK(&priv->disable_tso_work, yt921x_disable_tso_work);
+	schedule_delayed_work(&priv->disable_tso_work, HZ * 2);
 
 	yt921x_hwmon_register(mdiodev, priv);
 
