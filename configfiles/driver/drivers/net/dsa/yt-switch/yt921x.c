@@ -256,7 +256,7 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 						 disable_tso_work.work);
 	struct dsa_switch *ds = &priv->ds;
 
-	for (int port = 0; port < ds->num_ports; port) {
+	for (int port = 0; port < ds->num_ports; port++) {
 		struct dsa_port *dp = dsa_to_port(ds, port);
 
 		if (dp->type != DSA_PORT_TYPE_CPU || !dp->conduit)
@@ -268,6 +268,7 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 		 * and replace only ndo_fix_features so stmmac can never
 		 * restore TSO/GSO/GRO after we strip them.
 		 */
+		if (priv->orig_conduit_ops == NULL) {
 		priv->orig_conduit_ops = priv->conduit->netdev_ops;
 		memcpy(&priv->conduit_ops, priv->orig_conduit_ops,
 		       sizeof(priv->conduit_ops));
@@ -275,7 +276,7 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 			yt921x_conduit_fix_features;
 		WRITE_ONCE(priv->conduit->netdev_ops,
 			   &priv->conduit_ops);
-
+		}
 		rtnl_lock();
 		dp->conduit->hw_features &=
 			~(NETIF_F_TSO | NETIF_F_TSO6 |
