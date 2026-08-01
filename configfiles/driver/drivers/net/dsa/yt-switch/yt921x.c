@@ -259,10 +259,10 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 	for (int port = 0; port < ds->num_ports; port++) {
 		struct dsa_port *dp = dsa_to_port(ds, port);
 
-		if (dp->type != DSA_PORT_TYPE_CPU || !dp->conduit)
+		if (dp->type != DSA_PORT_TYPE_CPU || !dp->master)
 			continue;
 
-		priv->conduit = dp->conduit;
+		priv->conduit = dp->master;
 
 		/* Hijack ndo_fix_features: copy the conduit's ops table
 		 * and replace only ndo_fix_features so stmmac can never
@@ -278,16 +278,16 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 			   &priv->conduit_ops);
 		}
 		rtnl_lock();
-		dp->conduit->hw_features &=
+		dp->master->hw_features &=
 			~(NETIF_F_TSO | NETIF_F_TSO6 |
 			  NETIF_F_GSO | NETIF_F_GRO);
-		dp->conduit->wanted_features &=
+		dp->master->wanted_features &=
 			~(NETIF_F_TSO | NETIF_F_TSO6 |
 			  NETIF_F_GSO | NETIF_F_GRO);
-		netdev_update_features(dp->conduit);
+		netdev_update_features(dp->master);
 		rtnl_unlock();
 
-		netdev_info(dp->conduit,
+		netdev_info(dp->master,
 			    "Hijacked ndo_fix_features for YT921x DSA tag\n");
 		break;
 	}
