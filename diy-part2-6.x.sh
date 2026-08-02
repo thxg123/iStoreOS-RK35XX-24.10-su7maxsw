@@ -67,8 +67,8 @@ cp -a $GITHUB_WORKSPACE/configfiles/driver/* target/linux/generic/files
 ls target/linux/generic/files
 
 
-cp -f $GITHUB_WORKSPACE/configfiles/driver/999-net-dsa-add-yt921x-header-defs.patch target/linux/rockchip/patches-6.6/999-net-dsa-add-yt921x-header-defs.patch
-
+cp -f $GITHUB_WORKSPACE/configfiles/driver/999-01-net-dsa-add-yt921x-header-defs.patch target/linux/rockchip/patches-6.6/999-01-net-dsa-add-yt921x-header-defs.patch
+cp -f $GITHUB_WORKSPACE/configfiles/driver/999-02-fix-stmmac-pagepool-deadlock.patch target/linux/rockchip/patches-6.6/999-02-fix-stmmac-pagepool-deadlock.patch
 
 # cp -f $GITHUB_WORKSPACE/configfiles/netdevices.mk package/kernel/linux/modules/netdevices.mk
 
