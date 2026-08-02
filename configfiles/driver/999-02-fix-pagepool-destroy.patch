@@ -1,0 +1,17 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4233,8 +4233,15 @@ static void __free_dma_rx_desc_resources(struct stmmac_priv *priv,
+ 	if (xdp_rxq_info_is_reg(&rx_q->xdp_rxq))
+ 		xdp_rxq_info_unreg(&rx_q->xdp_rxq);
+ 	kfree(rx_q->buf_pool);
+-	if (rx_q->page_pool)
+-		page_pool_destroy(rx_q->page_pool);
++	if (rx_q->page_pool) {
++		/* Force wait for network stack to release SKB references */
++		rcu_barrier();
++		msleep(100);
++		page_pool_destroy(rx_q->page_pool);
++	}
+ }
+ 
+ static void free_dma_rx_desc_resources(struct stmmac_priv *priv,

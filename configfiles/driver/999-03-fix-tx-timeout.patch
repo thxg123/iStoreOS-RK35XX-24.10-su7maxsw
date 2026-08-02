@@ -1,0 +1,18 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -7144,7 +7144,18 @@ static int stmmac_napi_poll_rxtx(struct napi_struct *napi, int budget)
+ static void stmmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+-	stmmac_global_err(priv);
++	netdev_warn(dev, "TX Timeout on queue %u, attempting queue-level recovery\n", txqueue);
++	stmmac_tx_err(priv, txqueue);
++
++	/* Fallback to global reset only if queue-level recovery fails */
++	if (netif_tx_queue_stopped(netdev_get_tx_queue(dev, txqueue))) {
++		netdev_err(dev, "Queue-level recovery failed, fallback to global reset\n");
++		stmmac_global_err(priv);
++	}
+ }
+ 
+ /**
