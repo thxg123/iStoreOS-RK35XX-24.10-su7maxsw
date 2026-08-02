@@ -238,13 +238,8 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 
 static netdev_features_t
 yt921x_conduit_fix_features(struct net_device *dev,
-			    netdev_features_t features)
+                            netdev_features_t features)
 {
-	/* Strip offloads that the 8-byte YT921x DSA tag corrupts.
-	 * Stmmac's ndo_fix_features would re-add TSO from hardware
-	 * capability (dma_cap.tsoen) — we intercept at the ops level
-	 * to strip it after stmmac's logic, so it never sticks.
-	 */
 	features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
 		      NETIF_F_GSO | NETIF_F_GRO);
 	return features;
@@ -253,91 +248,89 @@ yt921x_conduit_fix_features(struct net_device *dev,
 static void yt921x_disable_tso_work(struct work_struct *work)
 {
 	struct yt921x_priv *priv = container_of(work, struct yt921x_priv,
-						 disable_tso_work.work);
+						disable_tso_work.work);
 	struct dsa_switch *ds = &priv->ds;
+	struct dsa_port *cpu_dp = NULL;
+	int port;
 
-	for (int port = 0; port < ds->num_ports; port++) {
+	for (port = 0; port < ds->num_ports; port++) {
 		struct dsa_port *dp = dsa_to_port(ds, port);
+		if (dp->type == DSA_PORT_TYPE_CPU && dp->master) {
+			cpu_dp = dp;
+			break;
+		}
+	}
 
-		if (dp->type != DSA_PORT_TYPE_CPU || !dp->master)
-			continue;
+	if (!cpu_dp)
+		return;
 
-		priv->conduit = dp->master;
+	priv->conduit = cpu_dp->master;
 
-		/* Hijack ndo_fix_features: copy the conduit's ops table
-		 * and replace only ndo_fix_features so stmmac can never
-		 * restore TSO/GSO/GRO after we strip them.
-		 */
-		if (priv->orig_conduit_ops == NULL) {
+	rtnl_lock();
+
+	if (priv->orig_conduit_ops == NULL) {
 		priv->orig_conduit_ops = priv->conduit->netdev_ops;
 		memcpy(&priv->conduit_ops, priv->orig_conduit_ops,
 		       sizeof(priv->conduit_ops));
-		priv->conduit_ops.ndo_fix_features =
-			yt921x_conduit_fix_features;
-		WRITE_ONCE(priv->conduit->netdev_ops,
-			   &priv->conduit_ops);
-		}
-		rtnl_lock();
-		dp->master->hw_features &=
-			~(NETIF_F_TSO | NETIF_F_TSO6 |
-			  NETIF_F_GSO | NETIF_F_GRO);
-		dp->master->wanted_features &=
-			~(NETIF_F_TSO | NETIF_F_TSO6 |
-			  NETIF_F_GSO | NETIF_F_GRO);
-		netdev_update_features(dp->master);
-		rtnl_unlock();
-
-		netdev_info(dp->master,
-			    "Hijacked ndo_fix_features for YT921x DSA tag\n");
-		break;
+		priv->conduit_ops.ndo_fix_features = yt921x_conduit_fix_features;
+		WRITE_ONCE(priv->conduit->netdev_ops, &priv->conduit_ops);
 	}
+
+	cpu_dp->master->hw_features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
+					 NETIF_F_GSO | NETIF_F_GRO);
+	cpu_dp->master->wanted_features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
+					     NETIF_F_GSO | NETIF_F_GRO);
+	
+	netdev_update_features(cpu_dp->master);
+
+	rtnl_unlock();
+
+	netdev_info(cpu_dp->master,
+		    "Hijacked ndo_fix_features for YT921x DSA tag (TSO/GSO/GRO disabled)\n");
 }
 
 static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 {
 	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
-
 	if (!priv)
 		return;
 
+	cancel_delayed_work_sync(&priv->disable_tso_work);
+
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
-
 		cancel_delayed_work_sync(&pp->mib_read);
 	}
-
 #if IS_ENABLED(CONFIG_NET_DSA_YT921X_DEBUG)
 	cancel_delayed_work_sync(&priv->storm_guard_work);
 #endif
-
 	dsa_switch_shutdown(&priv->ds);
 }
 
 static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 {
 	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
-
 	if (!priv)
 		return;
 
 	cancel_delayed_work_sync(&priv->disable_tso_work);
 
-	/* Restore original netdev_ops if we hijacked them */
-	if (priv->orig_conduit_ops)
-		WRITE_ONCE(priv->conduit->netdev_ops, priv->orig_conduit_ops);
+	if (priv->orig_conduit_ops && priv->conduit) {
+		rtnl_lock();
+		if (priv->conduit->reg_state == NETREG_REGISTERED) {
+			WRITE_ONCE(priv->conduit->netdev_ops, priv->orig_conduit_ops);
+		}
+		rtnl_unlock();
+	}
 
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
-
 		cancel_delayed_work_sync(&pp->mib_read);
 	}
-
 #if IS_ENABLED(CONFIG_NET_DSA_YT921X_DEBUG)
 	cancel_delayed_work_sync(&priv->storm_guard_work);
 #endif
-
 	dsa_unregister_switch(&priv->ds);
-
 	yt921x_proc_exit(priv);
 	mutex_destroy(&priv->reg_lock);
 }
