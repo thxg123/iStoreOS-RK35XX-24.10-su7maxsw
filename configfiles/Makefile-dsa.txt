@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+include $(TOPDIR)/rules.mk
+
+BOARD:=rockchip
+BOARDNAME:=Rockchip
+FEATURES:=ext4 audio usb usbgadget display gpio fpu pci pcie rootfs-part boot-part squashfs
+SUBTARGETS:=armv8
+
+KERNEL_PATCHVER:=6.6
+
+define Target/Description
+	Build firmware image for Rockchip SoC devices.
+endef
+
+include $(INCLUDE_DIR)/target.mk
+
+DEFAULT_PACKAGES += uboot-envtools partx-utils e2fsprogs mkf2fs kmod-gpio-button-hotplug ethtool
+
+KERNELNAME:=Image dtbs
+
+define Kernel/Prepare
+	$(call Kernel/Prepare/Default)
+	if [ -f $(TOPDIR)/stmmac_main.c.txt ] && [ -d $(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/ ]; then \
+		cp -f $(TOPDIR)/stmmac_main.c.txt $(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c; \
+		echo "✅ stmmac GMAC驱动文件替换完成"; \
+	else \
+		echo "⚠️ stmmac_main.c.txt 文件缺失 或 驱动目录不存在，跳过覆盖"; \
+	fi
+endef
+
+$(eval $(call BuildTarget))
