@@ -47,15 +47,6 @@ enum yt921x_tag_code {
 	YT921X_TAG_CODE_FDB_COPY = 0x1c,
 };
 
-/* 
- * 终极修复说明：
- * 1. 恢复 skb_checksum_help：rk_gmac-dwmac 硬件无法解析 0x9988 标签，强行硬件卸载
- *    会导致 DMA 描述符错误并卡死 TX 环，触发 NETDEV WATCHDOG 超时。
- * 2. 彻底删除 yt921x_conduit_is_raw：在 TX (持有自旋锁) 和 RX (NAPI 软中断) 
- *    上下文中调用可能睡眠的交换机 ops 会导致 "scheduling while atomic" 死锁。
- * 3. 修复所有 return NULL 路径的 SKB 内存泄漏。
- */
-
 static struct sk_buff *
 yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 {
@@ -64,18 +55,32 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 	__be16 *tag;
 	u16 tx;
 
-	/* 恢复软件校验和计算，防止 rk_gmac-dwmac TX DMA 环挂死 */
+	/* 
+	 * 【核心修复 1：解决 Tx Queue Timeout】
+	 * 必须保留 skb_checksum_help！
+	 * Rockchip rk_gmac (stmmac) 驱动在 6.6 内核下，其硬件校验和引擎
+	 * 无法正确处理带有 8 字节 YT921X EtherType Tag 的帧（IP头偏移改变）。
+	 * 如果直接传递 CHECKSUM_PARTIAL，stmmac 会配置错误的 DMA 描述符，
+	 * 导致 DMA 引擎挂死，从而触发 "NETDEV WATCHDOG: transmit queue timed out"。
+	 * 必须在软件中提前计算好校验和。
+	 */
 	if (skb->ip_summed == CHECKSUM_PARTIAL && skb_checksum_help(skb)) {
 		kfree_skb(skb); // 修复原版 6.6 的内存泄漏
 		return NULL;
 	}
 
-	/* DSA Core (dsa_realloc_skb) 已保证 headroom 和 unclone，无需 skb_cow_head */
+	/* 防御性检查，失败时释放 SKB 防止泄漏 */
+	if (unlikely(skb_cow_head(skb, YT921X_TAG_LEN) < 0)) {
+		kfree_skb(skb);
+		return NULL;
+	}
+
 	skb_push(skb, YT921X_TAG_LEN);
 	dsa_alloc_etype_header(skb, YT921X_TAG_LEN);
 	tag = dsa_etype_header_pos_tx(skb);
 
 	tag[0] = htons(ETH_P_YT921X);
+	/* VLAN tag unrelated when TX */
 	tag[1] = 0;
 	tag[2] = htons(YT921X_TAG_CODE(YT921X_TAG_CODE_FORWARD) |
 		       YT921X_TAG_CODE_EN |
@@ -101,10 +106,16 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 
 	tag = dsa_etype_header_pos_rx(skb);
 	if (unlikely(tag[0] != htons(ETH_P_YT921X))) {
+		/* 【核心修复 2：解决死锁/Panic】
+		 * 彻底删除了 yt921x_conduit_is_raw 及 Secondary Conduit 逻辑。
+		 * 在 NAPI 软中断上下文中调用 get_tag_protocol 极易引发死锁。
+		 * 对于非 YT921X Tag 的包，直接丢弃并释放。
+		 */
 		kfree_skb(skb);
 		return NULL;
 	}
 
+	/* Locate which port this is coming from */
 	rx = ntohs(tag[2]);
 	if (unlikely((rx & YT921X_TAG_PORT_EN) == 0)) {
 		dev_warn_ratelimited(&netdev->dev,
@@ -112,7 +123,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 		kfree_skb(skb);
 		return NULL;
 	}
-
 	port = FIELD_GET(YT921X_TAG_RX_PORT_M, rx);
 	skb->dev = dsa_master_find_slave(netdev, 0, port);
 	if (unlikely(!skb->dev)) {
@@ -128,17 +138,18 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 				     "Tag code not enabled in rx packet\n");
 		goto out_strip;
 	}
-
 	code = FIELD_GET(YT921X_TAG_CODE_M, rx);
 	switch (code) {
 	case YT921X_TAG_CODE_FORWARD:
 	case YT921X_TAG_CODE_PORT_COPY:
 	case YT921X_TAG_CODE_FDB_COPY:
+		/* Already forwarded by hardware */
 		dsa_default_offload_fwd_mark(skb);
 		break;
 	case YT921X_TAG_CODE_L2_CTRL:
 	case YT921X_TAG_CODE_UNK_UCAST:
 	case YT921X_TAG_CODE_UNK_MCAST:
+		/* CPU-directed trap/copy classes. Do not set offload_fwd_mark. */
 		break;
 	default:
 		dev_warn_ratelimited(&netdev->dev,
@@ -147,6 +158,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	}
 
 out_strip:
+	/* Remove YT921x tag and update checksum */
 	skb_pull_rcsum(skb, YT921X_TAG_LEN);
 	dsa_strip_etype_header(skb, YT921X_TAG_LEN);
 	return skb;
