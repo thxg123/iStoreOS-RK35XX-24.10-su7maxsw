@@ -110,6 +110,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	u16 rx;
 
 	if (unlikely(!pskb_may_pull(skb, YT921X_TAG_LEN)))
+		kfree_skb(skb);
 		return NULL;
 
 	tag = dsa_etype_header_pos_rx(skb);
@@ -130,6 +131,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 				if (unlikely(user)) {
 					dev_warn_ratelimited(&netdev->dev,
 							     "secondary conduit has multiple user ports, dropping raw frame\n");
+					kfree_skb(skb);
 					return NULL;
 				}
 
@@ -142,6 +144,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 			}
 		}
 
+		kfree_skb(skb);
 		return NULL;
 	}
 
@@ -150,6 +153,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	if (unlikely((rx & YT921X_TAG_PORT_EN) == 0)) {
 		dev_warn_ratelimited(&netdev->dev,
 				     "Unexpected rx tag 0x%04x\n", rx);
+		kfree_skb(skb);
 		return NULL;
 	}
 
@@ -162,11 +166,13 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 		 */
 		if (cpu_dp && port < cpu_dp->ds->num_ports &&
 		    dsa_is_cpu_port(cpu_dp->ds, port)) {
+		    kfree_skb(skb);
 			return NULL;
 		}
 
 		dev_warn_ratelimited(&netdev->dev,
 				     "Couldn't decode source port %u\n", port);
+		kfree_skb(skb);
 		return NULL;
 	}
 

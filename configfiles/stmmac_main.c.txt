@@ -50,7 +50,6 @@
 #include "dwmac1000.h"
 #include "dwxgmac2.h"
 #include "hwif.h"
-#include <net/dsa.h>
 
 /* As long as the interface is active, we keep the timestamping counter enabled
  * with fine resolution and binary rollover. This avoid non-monotonic behavior
@@ -1938,12 +1937,8 @@ static void __free_dma_rx_desc_resources(struct stmmac_priv *priv,
 		xdp_rxq_info_unreg(&rx_q->xdp_rxq);
 
 	kfree(rx_q->buf_pool);
-	if (rx_q->page_pool) {
-		/* Force wait for network stack to release SKB references */
-		rcu_barrier();
-		msleep(100);
+	if (rx_q->page_pool)
 		page_pool_destroy(rx_q->page_pool);
-	}
 }
 
 static void free_dma_rx_desc_resources(struct stmmac_priv *priv,
@@ -5778,15 +5773,6 @@ static netdev_features_t stmmac_fix_features(struct net_device *dev,
 			priv->tso = true;
 		else
 			priv->tso = false;
-	}
-
-	if (netdev_uses_dsa(dev)) {
-		features &= ~(NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_SG | 
-			      NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
-		
-		priv->tso = false;
-
-		/*netdev_info(dev, "Hijacked ndo_fix_features for YT921x DSA tag\n");*/
 	}
 
 	return features;
