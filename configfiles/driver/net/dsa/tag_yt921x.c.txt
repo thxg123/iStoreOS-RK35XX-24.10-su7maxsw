@@ -24,10 +24,13 @@
  */
 
 #include <linux/etherdevice.h>
+
 #include "tag.h"
 
 #define YT921X_TAG_NAME	"yt921x"
+
 #define YT921X_TAG_LEN	8
+
 #define YT921X_TAG_PORT_EN		BIT(15)
 #define YT921X_TAG_RX_PORT_M		GENMASK(14, 11)
 #define YT921X_TAG_PRIO_M		GENMASK(10, 8)
@@ -36,7 +39,7 @@
 #define YT921X_TAG_CODE_M		GENMASK(6, 1)
 #define  YT921X_TAG_CODE(x)			FIELD_PREP(YT921X_TAG_CODE_M, (x))
 #define YT921X_TAG_TX_PORTS_M		GENMASK(10, 0)
-#define  YT921X_TAG_TX_PORTn(port)	BIT(port)
+#define YT921X_TAG_TX_PORTn(port)	BIT(port)
 
 enum yt921x_tag_code {
 	YT921X_TAG_CODE_FORWARD = 0x00,
@@ -47,14 +50,18 @@ enum yt921x_tag_code {
 	YT921X_TAG_CODE_FDB_COPY = 0x1c,
 };
 
-/* 
- * 终极修复说明：
- * 1. 恢复 skb_checksum_help：rk_gmac-dwmac 硬件无法解析 0x9988 标签，强行硬件卸载
- *    会导致 DMA 描述符错误并卡死 TX 环，触发 NETDEV WATCHDOG 超时。
- * 2. 彻底删除 yt921x_conduit_is_raw：在 TX (持有自旋锁) 和 RX (NAPI 软中断) 
- *    上下文中调用可能睡眠的交换机 ops 会导致 "scheduling while atomic" 死锁。
- * 3. 修复所有 return NULL 路径的 SKB 内存泄漏。
- */
+static bool yt921x_conduit_is_raw(const struct dsa_port *cpu_dp)
+{
+	enum dsa_tag_protocol proto;
+
+	if (!cpu_dp || !cpu_dp->ds || !cpu_dp->ds->ops ||
+	    !cpu_dp->ds->ops->get_tag_protocol)
+		return false;
+
+	proto = cpu_dp->ds->ops->get_tag_protocol(cpu_dp->ds, cpu_dp->index,
+						  DSA_TAG_PROTO_NONE);
+	return proto == DSA_TAG_PROTO_NONE;
+}
 
 static struct sk_buff *
 yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
@@ -64,18 +71,29 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 	__be16 *tag;
 	u16 tx;
 
-	/* 恢复软件校验和计算，防止 rk_gmac-dwmac TX DMA 环挂死 */
+	if (yt921x_conduit_is_raw(dp->cpu_dp)) {
+		/* Secondary conduit sends raw frames (no YT tag). */
+		return skb;
+	}
+
+	/* Resolve hardware checksum offload in software before tagging */
 	if (skb->ip_summed == CHECKSUM_PARTIAL && skb_checksum_help(skb)) {
-		kfree_skb(skb); // 修复原版 6.6 的内存泄漏
+		kfree_skb(skb);
 		return NULL;
 	}
 
-	/* DSA Core (dsa_realloc_skb) 已保证 headroom 和 unclone，无需 skb_cow_head */
+	if (unlikely(skb_cow_head(skb, YT921X_TAG_LEN) < 0)) {
+		kfree_skb(skb);
+		return NULL;
+	}
+
 	skb_push(skb, YT921X_TAG_LEN);
 	dsa_alloc_etype_header(skb, YT921X_TAG_LEN);
+
 	tag = dsa_etype_header_pos_tx(skb);
 
 	tag[0] = htons(ETH_P_YT921X);
+	/* VLAN tag unrelated when TX */
 	tag[1] = 0;
 	tag[2] = htons(YT921X_TAG_CODE(YT921X_TAG_CODE_FORWARD) |
 		       YT921X_TAG_CODE_EN |
@@ -89,6 +107,7 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 static struct sk_buff *
 yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 {
+	struct dsa_port *cpu_dp = netdev->dsa_ptr;
 	unsigned int port;
 	__be16 *tag;
 	u16 code;
@@ -100,11 +119,41 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	}
 
 	tag = dsa_etype_header_pos_rx(skb);
+
 	if (unlikely(tag[0] != htons(ETH_P_YT921X))) {
+		/* Secondary conduit receives plain Ethernet frames. */
+		if (yt921x_conduit_is_raw(cpu_dp)) {
+			struct dsa_port *dp;
+			struct net_device *user = NULL;
+
+			dsa_switch_for_each_user_port(dp, cpu_dp->ds) {
+				if (dsa_port_to_master(dp) != netdev)
+					continue;
+
+				if (!dp->slave)
+					continue;
+
+				if (unlikely(user)) {
+					dev_warn_ratelimited(&netdev->dev,
+							     "secondary conduit has multiple user ports, dropping raw frame\n");
+					kfree_skb(skb);
+					return NULL;
+				}
+
+				user = dp->slave;
+			}
+
+			if (likely(user)) {
+				skb->dev = user;
+				return skb;
+			}
+		}
+
 		kfree_skb(skb);
 		return NULL;
 	}
 
+	/* Locate which port this is coming from */
 	rx = ntohs(tag[2]);
 	if (unlikely((rx & YT921X_TAG_PORT_EN) == 0)) {
 		dev_warn_ratelimited(&netdev->dev,
@@ -116,6 +165,16 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	port = FIELD_GET(YT921X_TAG_RX_PORT_M, rx);
 	skb->dev = dsa_master_find_slave(netdev, 0, port);
 	if (unlikely(!skb->dev)) {
+		/* During conduit retarget, tagged spillover can report a CPU
+		 * source port (for example 4) on the primary conduit. That is
+		 * not a user-port frame, so drop it quietly.
+		 */
+		if (cpu_dp && port < cpu_dp->ds->num_ports &&
+		    dsa_is_cpu_port(cpu_dp->ds, port)) {
+		    kfree_skb(skb);
+			return NULL;
+		}
+
 		dev_warn_ratelimited(&netdev->dev,
 				     "Couldn't decode source port %u\n", port);
 		kfree_skb(skb);
@@ -123,6 +182,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	}
 
 	skb->priority = FIELD_GET(YT921X_TAG_PRIO_M, rx);
+
 	if (unlikely(!(rx & YT921X_TAG_CODE_EN))) {
 		dev_warn_ratelimited(&netdev->dev,
 				     "Tag code not enabled in rx packet\n");
@@ -134,11 +194,13 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	case YT921X_TAG_CODE_FORWARD:
 	case YT921X_TAG_CODE_PORT_COPY:
 	case YT921X_TAG_CODE_FDB_COPY:
+		/* Already forwarded by hardware */
 		dsa_default_offload_fwd_mark(skb);
 		break;
 	case YT921X_TAG_CODE_L2_CTRL:
 	case YT921X_TAG_CODE_UNK_UCAST:
 	case YT921X_TAG_CODE_UNK_MCAST:
+		/* CPU-directed trap/copy classes. Do not set offload_fwd_mark. */
 		break;
 	default:
 		dev_warn_ratelimited(&netdev->dev,
@@ -147,8 +209,10 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	}
 
 out_strip:
+	/* Remove YT921x tag and update checksum */
 	skb_pull_rcsum(skb, YT921X_TAG_LEN);
 	dsa_strip_etype_header(skb, YT921X_TAG_LEN);
+
 	return skb;
 }
 
@@ -163,4 +227,5 @@ static const struct dsa_device_ops yt921x_netdev_ops = {
 MODULE_DESCRIPTION("DSA tag driver for Motorcomm YT921x switches");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_DSA_TAG_DRIVER(DSA_TAG_PROTO_YT921X, "yt921x");
+
 module_dsa_tag_driver(yt921x_netdev_ops);
