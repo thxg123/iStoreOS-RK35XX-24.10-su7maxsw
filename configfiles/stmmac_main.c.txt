@@ -5667,14 +5667,7 @@ static void stmmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
 {
 	struct stmmac_priv *priv = netdev_priv(dev);
 
-	netdev_warn(dev, "TX Timeout on queue %u, attempting queue-level recovery\n", txqueue);
-	stmmac_tx_err(priv, txqueue);
-
-	/* Fallback to global reset only if queue-level recovery fails */
-	if (netif_tx_queue_stopped(netdev_get_tx_queue(dev, txqueue))) {
-		netdev_err(dev, "Queue-level recovery failed, fallback to global reset\n");
-		stmmac_global_err(priv);
-	}
+	stmmac_global_err(priv);
 }
 
 /**
@@ -5784,6 +5777,15 @@ static netdev_features_t stmmac_fix_features(struct net_device *dev,
 			priv->tso = true;
 		else
 			priv->tso = false;
+	}
+
+	if (netdev_uses_dsa(dev)) {
+		features &= ~(NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_SG | 
+			      NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
+		
+		priv->tso = false;
+
+		/*netdev_info(dev, "Hijacked ndo_fix_features for YT921x DSA tag\n");*/
 	}
 
 	return features;
