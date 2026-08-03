@@ -241,7 +241,9 @@ yt921x_conduit_fix_features(struct net_device *dev,
                             netdev_features_t features)
 {
 	features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
-		      NETIF_F_GSO | NETIF_F_GRO);
+		      NETIF_F_GSO | NETIF_F_GRO |
+		      NETIF_F_CSUM_MASK);
+
 	return features;
 }
 
@@ -277,16 +279,18 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 	}
 
 	cpu_dp->master->hw_features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
-					 NETIF_F_GSO | NETIF_F_GRO);
+					 NETIF_F_GSO | NETIF_F_GRO |
+					 NETIF_F_CSUM_MASK);
 	cpu_dp->master->wanted_features &= ~(NETIF_F_TSO | NETIF_F_TSO6 |
-					     NETIF_F_GSO | NETIF_F_GRO);
+					     NETIF_F_GSO | NETIF_F_GRO |
+					     NETIF_F_CSUM_MASK);
 	
 	netdev_update_features(cpu_dp->master);
 
 	rtnl_unlock();
 
 	netdev_info(cpu_dp->master,
-		    "Hijacked ndo_fix_features for YT921x DSA tag (TSO/GSO/GRO disabled)\n");
+		    "Hijacked ndo_fix_features for YT921x DSA tag (TSO/GSO/GRO/TX-COE disabled)\n");
 }
 
 static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
