@@ -109,9 +109,10 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	u16 code;
 	u16 rx;
 
-	if (unlikely(!pskb_may_pull(skb, YT921X_TAG_LEN)))
+	if (unlikely(!pskb_may_pull(skb, YT921X_TAG_LEN))) {
 		kfree_skb(skb);
 		return NULL;
+	}
 
 	tag = dsa_etype_header_pos_rx(skb);
 
