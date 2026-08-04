@@ -130,7 +130,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	__be16 *tag;
 	u16 code;
 	u16 rx;
-	struct net_device *orig_dev = skb->dev;
 
 	if (unlikely(!pskb_may_pull(skb, YT921X_TAG_LEN))) {
 		kfree_skb(skb);
@@ -160,9 +159,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 		return NULL;
 	}
 
-	// 临时切换dev给DSA核心识别，处理完立刻还原master dev
-	skb->dev = slave_dev;
-
 	skb->priority = FIELD_GET(YT921X_TAG_PRIO_M, rx);
 	if (unlikely(!(rx & YT921X_TAG_CODE_EN))) {
 		dev_warn_ratelimited(&netdev->dev,
@@ -187,7 +183,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 	}
 
 out_strip:
-	skb->dev = orig_dev;
 	skb_pull_rcsum(skb, YT921X_TAG_LEN);
 	dsa_strip_etype_header(skb, YT921X_TAG_LEN);
 	return skb;
