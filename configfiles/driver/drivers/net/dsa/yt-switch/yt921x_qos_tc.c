@@ -100,7 +100,7 @@ int yt921x_read_mib(struct yt921x_priv *priv, int port)
 
 void yt921x_poll_mib(struct work_struct *work)
 {
-	struct yt921x_port *pp = container_of_const(work, struct yt921x_port,
+	struct yt921x_port *pp = container_of(work, struct yt921x_port,
 						    mib_read.work);
 	struct yt921x_priv *priv = pp->priv;
 	unsigned long delay = YT921X_STATS_INTERVAL_JIFFIES;
@@ -310,14 +310,14 @@ yt921x_dsa_get_strings(struct dsa_switch *ds, int port, u32 stringset,
 		const struct yt921x_mib_desc *desc = &yt921x_mib_descs[i];
 
 		if (desc->name)
-			ethtool_puts(&data, desc->name);
+			ethtool_sprintf(&data, desc->name);
 	}
 
 	for (size_t i = 0; i < ARRAY_SIZE(yt921x_qos_stat_names); i++)
-		ethtool_puts(&data, yt921x_qos_stat_names[i]);
+		ethtool_sprintf(&data, yt921x_qos_stat_names[i]);
 
 	for (size_t i = 0; i < ARRAY_SIZE(yt921x_diag_stat_names); i++)
-		ethtool_puts(&data, yt921x_diag_stat_names[i]);
+		ethtool_sprintf(&data, yt921x_diag_stat_names[i]);
 }
 
 void
@@ -713,7 +713,7 @@ static int yt921x_mtu_fetch(struct yt921x_priv *priv, int port)
 {
 	struct dsa_port *dp = dsa_to_port(&priv->ds, port);
 
-	return dp->user ? READ_ONCE(dp->user->mtu) : ETH_DATA_LEN;
+	return dp->slave ? READ_ONCE(dp->slave->mtu) : ETH_DATA_LEN;
 }
 
 /* v * 2^e */

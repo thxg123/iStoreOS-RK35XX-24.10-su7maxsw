@@ -163,12 +163,6 @@ static void yt921x_dsa_teardown(struct dsa_switch *ds)
 	priv->devlink_params_registered = false;
 }
 
-static const struct phylink_mac_ops yt921x_phylink_mac_ops = {
-	.mac_link_down	= yt921x_phylink_mac_link_down,
-	.mac_link_up	= yt921x_phylink_mac_link_up,
-	.mac_config	= yt921x_phylink_mac_config,
-};
-
 static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	/* mib */
 	.get_strings		= yt921x_dsa_get_strings,
@@ -180,23 +174,17 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	.get_stats64		= yt921x_dsa_get_stats64,
 	.get_pause_stats	= yt921x_dsa_get_pause_stats,
 	/* eee */
-	.support_eee		= dsa_supports_eee,
 	.set_mac_eee		= yt921x_dsa_set_mac_eee,
 	.get_mac_eee		= yt921x_dsa_get_mac_eee,
 	.get_wol		= yt921x_dsa_get_wol,
 	.set_wol		= yt921x_dsa_set_wol,
 	/* tc */
-	.cls_flower_add		= yt921x_dsa_cls_flower_add,
-	.cls_flower_del		= yt921x_dsa_cls_flower_del,
-	.cls_flower_stats	= yt921x_dsa_cls_flower_stats,
 	.port_setup_tc		= yt921x_dsa_port_setup_tc,
 	.port_policer_add	= yt921x_dsa_port_policer_add,
 	.port_policer_del	= yt921x_dsa_port_policer_del,
 	/* dcb */
 	.port_get_default_prio	= yt921x_dsa_port_get_default_prio,
 	.port_set_default_prio	= yt921x_dsa_port_set_default_prio,
-	.port_get_apptrust	= yt921x_dsa_port_get_apptrust,
-	.port_set_apptrust	= yt921x_dsa_port_set_apptrust,
 	/* mtu */
 	.port_change_mtu	= yt921x_dsa_port_change_mtu,
 	.port_max_mtu		= yt921x_dsa_port_max_mtu,
@@ -225,7 +213,6 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	/* bridge */
 	.port_pre_bridge_flags	= yt921x_dsa_port_pre_bridge_flags,
 	.port_bridge_flags	= yt921x_dsa_port_bridge_flags,
-	.port_mrouter		= yt921x_dsa_port_mrouter,
 	.port_bridge_leave	= yt921x_dsa_port_bridge_leave,
 	.port_bridge_join	= yt921x_dsa_port_bridge_join,
 	/* mst */
@@ -234,8 +221,11 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	.port_stp_state_set	= yt921x_dsa_port_stp_state_set,
 	/* port */
 	.get_tag_protocol	= yt921x_dsa_get_tag_protocol,
-	.port_change_conduit	= yt921x_dsa_port_change_conduit,
+	.port_change_master	= yt921x_dsa_port_change_master,
 	.phylink_get_caps	= yt921x_dsa_phylink_get_caps,
+	.phylink_mac_config	= yt921x_phylink_mac_config,
+	.phylink_mac_link_down	= yt921x_phylink_mac_link_down,
+	.phylink_mac_link_up	= yt921x_phylink_mac_link_up,
 	.port_setup		= yt921x_dsa_port_setup,
 	.port_enable		= yt921x_dsa_port_enable,
 	.port_disable		= yt921x_dsa_port_disable,
@@ -302,7 +292,6 @@ static void yt921x_disable_tso_work(struct work_struct *work)
 static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 {
 	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
-
 	if (!priv)
 		return;
 
@@ -310,21 +299,17 @@ static void yt921x_mdio_shutdown(struct mdio_device *mdiodev)
 
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
-
 		cancel_delayed_work_sync(&pp->mib_read);
 	}
-
 #if IS_ENABLED(CONFIG_NET_DSA_YT921X_DEBUG)
 	cancel_delayed_work_sync(&priv->storm_guard_work);
 #endif
-
 	dsa_switch_shutdown(&priv->ds);
 }
 
 static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 {
 	struct yt921x_priv *priv = mdiodev_get_drvdata(mdiodev);
-
 	if (!priv)
 		return;
 
@@ -340,16 +325,12 @@ static void yt921x_mdio_remove(struct mdio_device *mdiodev)
 
 	for (size_t i = ARRAY_SIZE(priv->ports); i-- > 0; ) {
 		struct yt921x_port *pp = &priv->ports[i];
-
 		cancel_delayed_work_sync(&pp->mib_read);
 	}
-
 #if IS_ENABLED(CONFIG_NET_DSA_YT921X_DEBUG)
 	cancel_delayed_work_sync(&priv->storm_guard_work);
 #endif
-
 	dsa_unregister_switch(&priv->ds);
-
 	yt921x_proc_exit(priv);
 	mutex_destroy(&priv->reg_lock);
 }
@@ -507,8 +488,6 @@ static int yt921x_mdio_probe(struct mdio_device *mdiodev)
 	ds->ops = &yt921x_dsa_switch_ops;
 	ds->ageing_time_min = 1 * 5000;
 	ds->ageing_time_max = U16_MAX * 5000;
-	ds->phylink_mac_ops = &yt921x_phylink_mac_ops;
-	ds->dscp_prio_mapping_is_global = true;
 	ds->num_lag_ids = YT921X_LAG_NUM;
 	ds->num_ports = YT921X_PORT_NUM;
 	ds->num_tx_queues = YT921X_PRIO_NUM;

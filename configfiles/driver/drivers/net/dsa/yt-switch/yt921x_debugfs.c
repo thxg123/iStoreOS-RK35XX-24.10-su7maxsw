@@ -2969,7 +2969,6 @@ int yt921x_proc_init(struct yt921x_priv *priv)
 		dev_warn(dev, "failed to create debugfs yt921x_cmd\n");
 		priv->proc_cmd = NULL;
 	}
-
 	return 0;
 }
 

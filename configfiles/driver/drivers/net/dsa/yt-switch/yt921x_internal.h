@@ -221,13 +221,14 @@ int yt921x_dsa_conduit_to_cpu_port(struct dsa_switch *ds, struct net_device *con
 int yt921x_stp_encode_state(int port, u8 state, u32 *ctrl);
 int yt921x_port_ctrl_apply_dt(struct yt921x_priv *priv, int port, bool allow_managed);
 int yt921x_port_down(struct yt921x_priv *priv, int port);
-void yt921x_phylink_mac_link_down(struct phylink_config *config, unsigned int mode,
-				  phy_interface_t interface);
-void yt921x_phylink_mac_link_up(struct phylink_config *config,
-				struct phy_device *phydev, unsigned int mode,
-				phy_interface_t interface, int speed, int duplex,
+void yt921x_phylink_mac_link_down(struct dsa_switch *ds, int port,
+				  unsigned int mode, phy_interface_t interface);
+void yt921x_phylink_mac_link_up(struct dsa_switch *ds, int port,
+				unsigned int mode, phy_interface_t interface,
+				struct phy_device *phydev, int speed, int duplex,
 				bool tx_pause, bool rx_pause);
-void yt921x_phylink_mac_config(struct phylink_config *config, unsigned int mode,
+void yt921x_phylink_mac_config(struct dsa_switch *ds, int port,
+			       unsigned int mode,
 			       const struct phylink_link_state *state);
 
 int yt921x_chip_reset(struct yt921x_priv *priv);
@@ -339,7 +340,7 @@ void yt921x_dsa_port_stp_state_set(struct dsa_switch *ds, int port, u8 state);
 
 enum dsa_tag_protocol yt921x_dsa_get_tag_protocol(struct dsa_switch *ds, int port,
 						   enum dsa_tag_protocol mp);
-int yt921x_dsa_port_change_conduit(struct dsa_switch *ds, int port,
+int yt921x_dsa_port_change_master(struct dsa_switch *ds, int port,
 				   struct net_device *conduit,
 				   struct netlink_ext_ack *extack);
 int yt921x_dsa_port_setup(struct dsa_switch *ds, int port);
