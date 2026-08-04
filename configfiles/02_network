@@ -113,7 +113,6 @@ rockchip_setup_macs()
 	case "$board" in
 	armsom,sige7|\
 	radxa,rock-5t|\
-	bdy,g98-nas|\
 	xunlong,orangepi-5-plus|\
 	friendlyarm,nanopc-t6|\
 	friendlyarm,nanopi-r2c|\
@@ -137,6 +136,9 @@ rockchip_setup_macs()
 	xunlong,orangepi-r1-plus|\
 	xunlong,orangepi-r1-plus-lts)
 		wan_mac=$(macaddr_add "$(cat /sys/class/net/eth1/address)" -1)
+		;;
+	bdy,g98-nas)
+		wan_mac=$(macaddr_add "$(cat /sys/class/net/eth2/address)" -1)
 		;;
 	*)
 		if json_is_a network object; then

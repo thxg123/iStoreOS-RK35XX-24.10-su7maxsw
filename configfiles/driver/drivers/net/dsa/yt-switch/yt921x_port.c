@@ -197,7 +197,7 @@ yt921x_dsa_port_stp_state_set(struct dsa_switch *ds, int port, u8 state)
 			break;
 
 		mask = YT921X_PORT_LEARN_DIS;
-		ctrl = !learning ? YT921X_PORT_LEARN_DIS : 0;
+		ctrl = YT921X_PORT_LEARN_DIS;
 		res = yt921x_reg_update_bits(priv, YT921X_PORTn_LEARN(port),
 					     mask, ctrl);
 	} while (0);

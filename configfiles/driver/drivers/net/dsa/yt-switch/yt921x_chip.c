@@ -29,8 +29,8 @@ static int yt921x_port_setup(struct yt921x_priv *priv, int port)
 		/* Enable learning on CPU ports so the switch learns the CPU's
 		 * MAC address and forwards local unicast traffic correctly.
 		 */
-		dev_info(yt921x_dev(priv), "Enabling learning on CPU port %d\n", port);
-		res = yt921x_reg_clear_bits(priv, YT921X_PORTn_LEARN(port),
+		dev_info(yt921x_dev(priv), "Disable hardware learning on CPU port %d\n", port);
+		res = yt921x_reg_set_bits(priv, YT921X_PORTn_LEARN(port),
 					    YT921X_PORT_LEARN_DIS);
 		if (res)
 			return res;
