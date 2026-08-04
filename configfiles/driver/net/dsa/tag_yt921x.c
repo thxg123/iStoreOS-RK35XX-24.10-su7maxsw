@@ -126,7 +126,6 @@ static struct sk_buff *
 yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 {
 	unsigned int port;
-	struct net_device *slave_dev;
 	__be16 *tag;
 	u16 code;
 	u16 rx;
@@ -151,8 +150,8 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 		return NULL;
 	}
 	port = FIELD_GET(YT921X_TAG_RX_PORT_M, rx);
-	slave_dev = dsa_master_find_slave(netdev, 0, port);
-	if (!slave_dev) {
+	skb->dev = dsa_master_find_slave(netdev, 0, port);
+	if (unlikely(!skb->dev)) {
 		dev_warn_ratelimited(&netdev->dev,
 				     "Couldn't decode source port %u\n", port);
 		kfree_skb(skb);
@@ -185,7 +184,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 out_strip:
 	skb_pull_rcsum(skb, YT921X_TAG_LEN);
 	dsa_strip_etype_header(skb, YT921X_TAG_LEN);
-	skb->dev = slave_dev;
 	return skb;
 }
 
