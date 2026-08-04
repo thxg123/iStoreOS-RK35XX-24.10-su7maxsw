@@ -1294,7 +1294,7 @@ static int yt921x_userport_bridge(struct yt921x_priv *priv, int port)
 	int res;
 
 	mask = YT921X_PORT_LEARN_DIS;
-	res = yt921x_reg_set_bits(priv, YT921X_PORTn_LEARN(port), mask);
+	res = yt921x_reg_clear_bits(priv, YT921X_PORTn_LEARN(port), mask);
 	if (res)
 		return res;
 
