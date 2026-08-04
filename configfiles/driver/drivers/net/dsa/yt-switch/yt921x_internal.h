@@ -34,7 +34,7 @@
 #include <linux/workqueue.h>
 
 #include <net/dsa.h>
-#include <net/dscp.h>
+#include <net/inet_dscp.h>
 #include <net/flow_offload.h>
 #include <net/ieee8021q.h>
 #include <net/pkt_cls.h>
