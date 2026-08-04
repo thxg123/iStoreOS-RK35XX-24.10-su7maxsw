@@ -5663,7 +5663,9 @@ static void stmmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
 {
 	struct stmmac_priv *priv = netdev_priv(dev);
 
-	stmmac_global_err(priv);
+	/*stmmac_global_err(priv);*/
+	stmmac_stop_tx(priv, txqueue);
+	stmmac_start_tx(priv, txqueue);
 }
 
 /**
