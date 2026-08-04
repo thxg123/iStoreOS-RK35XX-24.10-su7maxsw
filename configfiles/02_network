@@ -138,10 +138,10 @@ rockchip_setup_macs()
 		wan_mac=$(macaddr_add "$(cat /sys/class/net/eth1/address)" -1)
 		;;
 	bdy,g98-nas)
-		if [ -e /sys/class/net/eth2/address ]; then
-			wan_mac=$(macaddr_add "$(cat /sys/class/net/eth2/address)" -1)
-		else
-			wan_mac=$(macaddr_add "$(cat /sys/class/net/eth3/address)" -1)
+		if [ -e /sys/class/net/eth2/address ] && mac2=$(cat /sys/class/net/eth2/address 2>/dev/null); then
+			wan_mac=$(macaddr_add "$mac2" -1)
+		elif [ -e /sys/class/net/eth3/address ] && mac3=$(cat /sys/class/net/eth3/address 2>/dev/null); then
+			wan_mac=$(macaddr_add "$mac3" -1)
 		fi
 		;;
 	*)
