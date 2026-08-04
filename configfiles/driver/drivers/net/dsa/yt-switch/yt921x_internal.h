@@ -36,11 +36,29 @@
 #include <net/dsa.h>
 #include <net/inet_dscp.h>
 #include <net/flow_offload.h>
-#include <net/ieee8021q.h>
 #include <net/pkt_cls.h>
 #include <net/pkt_sched.h>
 
 #include "yt921x.h"
+
+#ifndef DSCP_MAX
+#define DSCP_MAX 64
+#endif
+
+#ifndef IEEE8021Q_TT_BK
+#define IEEE8021Q_TT_BK 1
+#endif
+
+#ifndef SIMPLE_IETF_DSCP_TO_IEEE8021Q_TT
+#define SIMPLE_IETF_DSCP_TO_IEEE8021Q_TT(dscp) (((dscp) >> 3) & 0x7)
+#endif
+
+#ifndef HAVE_IETF_DSCP_TO_IEEE8021Q_TT
+static inline int ietf_dscp_to_ieee8021q_tt(u8 dscp)
+{
+	return SIMPLE_IETF_DSCP_TO_IEEE8021Q_TT(dscp);
+}
+#endif
 
 struct yt921x_mib_desc {
 	unsigned int size;
@@ -231,8 +249,8 @@ void yt921x_dsa_get_stats64(struct dsa_switch *ds, int port,
 			    struct rtnl_link_stats64 *s);
 void yt921x_dsa_get_pause_stats(struct dsa_switch *ds, int port,
 				struct ethtool_pause_stats *pause_stats);
-int yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_keee *e);
-int yt921x_dsa_get_mac_eee(struct dsa_switch *ds, int port, struct ethtool_keee *e);
+int yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_eee *e);
+int yt921x_dsa_get_mac_eee(struct dsa_switch *ds, int port, struct ethtool_eee *e);
 void yt921x_dsa_get_wol(struct dsa_switch *ds, int port,
 			struct ethtool_wolinfo *w);
 int yt921x_dsa_set_wol(struct dsa_switch *ds, int port,

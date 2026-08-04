@@ -541,7 +541,7 @@ yt921x_dsa_get_pause_stats(struct dsa_switch *ds, int port,
 }
 
 static int
-yt921x_set_eee(struct yt921x_priv *priv, int port, struct ethtool_keee *e)
+yt921x_set_eee(struct yt921x_priv *priv, int port, struct ethtool_eee *e)
 {
 	/* Poor datasheet for EEE operations; don't ask if you are confused */
 
@@ -581,7 +581,7 @@ yt921x_set_eee(struct yt921x_priv *priv, int port, struct ethtool_keee *e)
 }
 
 int
-yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_keee *e)
+yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_eee *e)
 {
 	struct yt921x_priv *priv = yt921x_to_priv(ds);
 	int res;
@@ -594,7 +594,7 @@ yt921x_dsa_set_mac_eee(struct dsa_switch *ds, int port, struct ethtool_keee *e)
 }
 
 int
-yt921x_dsa_get_mac_eee(struct dsa_switch *ds, int port, struct ethtool_keee *e)
+yt921x_dsa_get_mac_eee(struct dsa_switch *ds, int port, struct ethtool_eee *e)
 {
 	struct yt921x_priv *priv = yt921x_to_priv(ds);
 	u32 eee_ctrl;
