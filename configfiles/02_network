@@ -138,7 +138,11 @@ rockchip_setup_macs()
 		wan_mac=$(macaddr_add "$(cat /sys/class/net/eth1/address)" -1)
 		;;
 	bdy,g98-nas)
-		wan_mac=$(macaddr_add "$(cat /sys/class/net/eth2/address)" -1)
+		if [ -e /sys/class/net/eth2/address ]; then
+			wan_mac=$(macaddr_add "$(cat /sys/class/net/eth2/address)" -1)
+		else
+			wan_mac=$(macaddr_add "$(cat /sys/class/net/eth3/address)" -1)
+		fi
 		;;
 	*)
 		if json_is_a network object; then
