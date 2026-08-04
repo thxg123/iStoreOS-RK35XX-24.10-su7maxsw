@@ -24,6 +24,8 @@
  */
 
 #include <linux/etherdevice.h>
+#include <net/dsa.h>
+#include <net/skb_metadata.h>
 #include "tag.h"
 
 #define YT921X_TAG_NAME	"yt921x"
@@ -150,13 +152,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 		return NULL;
 	}
 	port = FIELD_GET(YT921X_TAG_RX_PORT_M, rx);
-	skb->dev = dsa_master_find_slave(netdev, 0, port);
-	if (unlikely(!skb->dev)) {
-		dev_warn_ratelimited(&netdev->dev,
-				     "Couldn't decode source port %u\n", port);
-		kfree_skb(skb);
-		return NULL;
-	}
+	skb_metadata_set_dsa_port(skb, port);
 
 	skb->priority = FIELD_GET(YT921X_TAG_PRIO_M, rx);
 	if (unlikely(!(rx & YT921X_TAG_CODE_EN))) {
