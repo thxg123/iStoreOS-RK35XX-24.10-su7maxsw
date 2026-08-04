@@ -185,6 +185,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 out_strip:
 	skb_pull_rcsum(skb, YT921X_TAG_LEN);
 	dsa_strip_etype_header(skb, YT921X_TAG_LEN);
+	skb_dev_set(skb, slave_dev);
 	return skb;
 }
 
