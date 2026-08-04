@@ -127,7 +127,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 {
 	unsigned int port;
 	struct net_device *slave_dev;
-	struct dsa_port *dp;
 	__be16 *tag;
 	u16 code;
 	u16 rx;
@@ -160,9 +159,6 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 		return NULL;
 	}
 
-	dp = dsa_slave_to_port(slave_dev);
-	skb->offload_fwd_mark = dp->offload_fwd_mark;
-
 	skb->priority = FIELD_GET(YT921X_TAG_PRIO_M, rx);
 	if (unlikely(!(rx & YT921X_TAG_CODE_EN))) {
 		dev_warn_ratelimited(&netdev->dev,
@@ -189,6 +185,7 @@ yt921x_tag_rcv(struct sk_buff *skb, struct net_device *netdev)
 out_strip:
 	skb_pull_rcsum(skb, YT921X_TAG_LEN);
 	dsa_strip_etype_header(skb, YT921X_TAG_LEN);
+	skb->dev = slave_dev;
 	return skb;
 }
 
