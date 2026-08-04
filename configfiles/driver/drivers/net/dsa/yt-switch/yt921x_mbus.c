@@ -365,7 +365,7 @@ yt921x_mbus_ext_c45_prepare(struct yt921x_priv *priv, int port, int devnum,
 				  devnum | MII_MMD_CTRL_NOINCR);
 }
 
-static int __maybe_unused
+static int
 yt921x_mbus_ext_read_c45(struct mii_bus *mbus, int port, int devnum, int regnum)
 {
 	struct yt921x_priv *priv = mbus->priv;
@@ -388,7 +388,7 @@ out_unlock:
 	return val;
 }
 
-static int __maybe_unused
+static int
 yt921x_mbus_ext_write_c45(struct mii_bus *mbus, int port, int devnum,
 			   int regnum, u16 data)
 {
@@ -422,6 +422,8 @@ yt921x_mbus_ext_init(struct yt921x_priv *priv, struct device_node *mnp)
 	mbus->priv = priv;
 	mbus->read = yt921x_mbus_ext_read;
 	mbus->write = yt921x_mbus_ext_write;
+	mbus->read_c45 = yt921x_mbus_ext_read_c45;
+	mbus->write_c45 = yt921x_mbus_ext_write_c45;
 	mbus->parent = dev;
 
 	res = devm_of_mdiobus_register(dev, mbus, mnp);

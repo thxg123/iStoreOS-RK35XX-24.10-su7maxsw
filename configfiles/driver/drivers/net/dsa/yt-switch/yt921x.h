@@ -67,7 +67,7 @@ struct yt921x_priv;
 #define YT921X_PROC_FIELD(_width, _word, _shift, _name) \
 	{ .width = (_width), .word = (_word), .shift = (_shift), .name = (_name) }
 
-#define yt921x_to_priv(_ds) container_of(_ds, struct yt921x_priv, ds)
+#define yt921x_to_priv(_ds) container_of_const(_ds, struct yt921x_priv, ds)
 #define yt921x_dev(priv) ((priv)->ds.dev)
 
 #define YT921X_SMI_SWITCHID_M		GENMASK(3, 2)

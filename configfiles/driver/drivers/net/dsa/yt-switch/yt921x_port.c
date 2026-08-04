@@ -249,7 +249,6 @@ yt921x_dsa_port_set_default_prio(struct dsa_switch *ds, int port, u8 prio)
 	return res;
 }
 
-#if 0 /* apptrust DSA ops are not present in Linux 6.1. */
 static int __maybe_unused appprios_cmp(const void *a, const void *b)
 {
 	return ((const u8 *)b)[1] - ((const u8 *)a)[1];
@@ -328,8 +327,6 @@ yt921x_dsa_port_set_apptrust(struct dsa_switch *ds, int port, const u8 *sel,
 
 	return res;
 }
-
-#endif
 
 static bool yt921x_storm_policer_supported_port(struct dsa_switch *ds, int port)
 {
@@ -651,18 +648,6 @@ yt921x_port_validate_link_mode(struct yt921x_priv *priv, int port,
 	}
 
 	switch (interface) {
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		switch (speed) {
-		case SPEED_10:
-		case SPEED_100:
-		case SPEED_1000:
-			return 0;
-		default:
-			return -EINVAL;
-		}
 	case PHY_INTERFACE_MODE_SGMII:
 		switch (speed) {
 		case SPEED_10:
@@ -746,43 +731,41 @@ yt921x_port_up(struct yt921x_priv *priv, int port, unsigned int mode,
 		return res;
 
 	if (yt921x_is_external_port(priv, port)) {
-		if (!phy_interface_mode_is_rgmii(interface)) {
-			mask = YT921X_SERDES_SPEED_M;
-			switch (speed) {
-			case SPEED_10:
-				ctrl = YT921X_SERDES_SPEED_10;
-				break;
-			case SPEED_100:
-				ctrl = YT921X_SERDES_SPEED_100;
-				break;
-			case SPEED_1000:
-				ctrl = YT921X_SERDES_SPEED_1000;
-				break;
-			case SPEED_2500:
-				ctrl = YT921X_SERDES_SPEED_2500;
-				break;
-			case SPEED_10000:
-				ctrl = YT921X_SERDES_SPEED_10000;
-				break;
-			default:
-				return -EINVAL;
-			}
-			mask |= YT921X_SERDES_DUPLEX_FULL;
-			if (duplex == DUPLEX_FULL)
-				ctrl |= YT921X_SERDES_DUPLEX_FULL;
-			mask |= YT921X_SERDES_TX_PAUSE;
-			if (tx_pause)
-				ctrl |= YT921X_SERDES_TX_PAUSE;
-			mask |= YT921X_SERDES_RX_PAUSE;
-			if (rx_pause)
-				ctrl |= YT921X_SERDES_RX_PAUSE;
-			mask |= YT921X_SERDES_LINK;
-			ctrl |= YT921X_SERDES_LINK;
-			res = yt921x_reg_update_bits(priv, YT921X_SERDESn(port),
-						     mask, ctrl);
-			if (res)
-				return res;
+		mask = YT921X_SERDES_SPEED_M;
+		switch (speed) {
+		case SPEED_10:
+			ctrl = YT921X_SERDES_SPEED_10;
+			break;
+		case SPEED_100:
+			ctrl = YT921X_SERDES_SPEED_100;
+			break;
+		case SPEED_1000:
+			ctrl = YT921X_SERDES_SPEED_1000;
+			break;
+		case SPEED_2500:
+			ctrl = YT921X_SERDES_SPEED_2500;
+			break;
+		case SPEED_10000:
+			ctrl = YT921X_SERDES_SPEED_10000;
+			break;
+		default:
+			return -EINVAL;
 		}
+		mask |= YT921X_SERDES_DUPLEX_FULL;
+		if (duplex == DUPLEX_FULL)
+			ctrl |= YT921X_SERDES_DUPLEX_FULL;
+		mask |= YT921X_SERDES_TX_PAUSE;
+		if (tx_pause)
+			ctrl |= YT921X_SERDES_TX_PAUSE;
+		mask |= YT921X_SERDES_RX_PAUSE;
+		if (rx_pause)
+			ctrl |= YT921X_SERDES_RX_PAUSE;
+		mask |= YT921X_SERDES_LINK;
+		ctrl |= YT921X_SERDES_LINK;
+		res = yt921x_reg_update_bits(priv, YT921X_SERDESn(port),
+					     mask, ctrl);
+		if (res)
+			return res;
 
 		mask = YT921X_XMII_LINK;
 		res = yt921x_reg_set_bits(priv, YT921X_XMIIn(port), mask);
@@ -918,39 +901,6 @@ yt921x_port_config(struct yt921x_priv *priv, int port, unsigned int mode,
 	}
 
 	switch (interface) {
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		mask = YT921X_SERDES_CTRL_PORTn(port);
-		res = yt921x_reg_clear_bits(priv, YT921X_SERDES_CTRL, mask);
-		if (res)
-			return res;
-
-		mask = YT921X_XMII_CTRL_PORTn(port);
-		res = yt921x_reg_set_bits(priv, YT921X_XMII_CTRL, mask);
-		if (res)
-			return res;
-
-		mask = YT921X_XMII_MODE_M |
-		       YT921X_XMII_EN |
-		       YT921X_XMII_SOFT_RST |
-		       YT921X_XMII_RGMII_TX_DELAY_150PS_M |
-		       YT921X_XMII_RGMII_TX_DELAY_2NS |
-		       YT921X_XMII_RGMII_RX_DELAY_150PS_M;
-		ctrl = YT921X_XMII_MODE_RGMII | YT921X_XMII_EN;
-		if (interface == PHY_INTERFACE_MODE_RGMII_TXID ||
-		    interface == PHY_INTERFACE_MODE_RGMII_ID)
-			ctrl |= YT921X_XMII_RGMII_TX_DELAY_2NS;
-		if (interface == PHY_INTERFACE_MODE_RGMII_RXID ||
-		    interface == PHY_INTERFACE_MODE_RGMII_ID)
-			ctrl |= YT921X_XMII_RGMII_RX_DELAY_150PS(14);
-		res = yt921x_reg_update_bits(priv, YT921X_XMIIn(port),
-					     mask, ctrl);
-		if (res)
-			return res;
-
-		break;
 	/* SERDES */
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_100BASEX:
@@ -985,10 +935,12 @@ yt921x_port_config(struct yt921x_priv *priv, int port, unsigned int mode,
 }
 
 void
-yt921x_phylink_mac_link_down(struct dsa_switch *ds, int port,
-			     unsigned int mode, phy_interface_t interface)
+yt921x_phylink_mac_link_down(struct phylink_config *config, unsigned int mode,
+			     phy_interface_t interface)
 {
-	struct yt921x_priv *priv = yt921x_to_priv(ds);
+	struct dsa_port *dp = dsa_phylink_to_port(config);
+	struct yt921x_priv *priv = yt921x_to_priv(dp->ds);
+	int port = dp->index;
 	int res;
 
 	WRITE_ONCE(priv->ports[port].port_up, false);
@@ -999,17 +951,19 @@ yt921x_phylink_mac_link_down(struct dsa_switch *ds, int port,
 	mutex_unlock(&priv->reg_lock);
 
 	if (res)
-		dev_err(ds->dev, "Failed to %s port %d: %i\n", "bring down",
+		dev_err(dp->ds->dev, "Failed to %s port %d: %i\n", "bring down",
 			port, res);
 }
 
 void
-yt921x_phylink_mac_link_up(struct dsa_switch *ds, int port,
-			   unsigned int mode, phy_interface_t interface,
-			   struct phy_device *phydev, int speed, int duplex,
+yt921x_phylink_mac_link_up(struct phylink_config *config,
+			   struct phy_device *phydev, unsigned int mode,
+			   phy_interface_t interface, int speed, int duplex,
 			   bool tx_pause, bool rx_pause)
 {
-	struct yt921x_priv *priv = yt921x_to_priv(ds);
+	struct dsa_port *dp = dsa_phylink_to_port(config);
+	struct yt921x_priv *priv = yt921x_to_priv(dp->ds);
+	int port = dp->index;
 	int res;
 
 	mutex_lock(&priv->reg_lock);
@@ -1018,7 +972,7 @@ yt921x_phylink_mac_link_up(struct dsa_switch *ds, int port,
 	mutex_unlock(&priv->reg_lock);
 
 	if (res)
-		dev_err(ds->dev, "Failed to %s port %d: %i\n", "bring up",
+		dev_err(dp->ds->dev, "Failed to %s port %d: %i\n", "bring up",
 			port, res);
 
 	if (!res) {
@@ -1028,11 +982,12 @@ yt921x_phylink_mac_link_up(struct dsa_switch *ds, int port,
 }
 
 void
-yt921x_phylink_mac_config(struct dsa_switch *ds, int port,
-			  unsigned int mode,
+yt921x_phylink_mac_config(struct phylink_config *config, unsigned int mode,
 			  const struct phylink_link_state *state)
 {
-	struct yt921x_priv *priv = yt921x_to_priv(ds);
+	struct dsa_port *dp = dsa_phylink_to_port(config);
+	struct yt921x_priv *priv = yt921x_to_priv(dp->ds);
+	int port = dp->index;
 	int res;
 
 	mutex_lock(&priv->reg_lock);
@@ -1040,7 +995,7 @@ yt921x_phylink_mac_config(struct dsa_switch *ds, int port,
 	mutex_unlock(&priv->reg_lock);
 
 	if (res)
-		dev_err(ds->dev, "Failed to %s port %d: %i\n", "config",
+		dev_err(dp->ds->dev, "Failed to %s port %d: %i\n", "config",
 			port, res);
 }
 
@@ -1049,20 +1004,6 @@ yt921x_phylink_set_external_caps(struct phylink_config *config,
 				 phy_interface_t interface)
 {
 	switch (interface) {
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		__set_bit(PHY_INTERFACE_MODE_RGMII,
-			  config->supported_interfaces);
-		__set_bit(PHY_INTERFACE_MODE_RGMII_ID,
-			  config->supported_interfaces);
-		__set_bit(PHY_INTERFACE_MODE_RGMII_RXID,
-			  config->supported_interfaces);
-		__set_bit(PHY_INTERFACE_MODE_RGMII_TXID,
-			  config->supported_interfaces);
-		config->mac_capabilities |= MAC_10 | MAC_100 | MAC_1000;
-		break;
 	case PHY_INTERFACE_MODE_SGMII:
 		/* This kernel lacks PHY_INTERFACE_MODE_REVSGMII.
 		 * PHY_INTERFACE_MODE_SGMII defaults to REVSGMII for
@@ -1129,8 +1070,6 @@ yt921x_dsa_phylink_get_caps(struct dsa_switch *ds, int port,
 							 PHY_INTERFACE_MODE_1000BASEX);
 			yt921x_phylink_set_external_caps(config,
 							 PHY_INTERFACE_MODE_2500BASEX);
-			yt921x_phylink_set_external_caps(config,
-							 PHY_INTERFACE_MODE_RGMII);
 		}
 	}
 	/* no such port: empty supported_interfaces causes phylink to turn it

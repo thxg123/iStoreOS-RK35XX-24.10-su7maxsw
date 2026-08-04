@@ -42,7 +42,7 @@ static int yt921x_port_setup(struct yt921x_priv *priv, int port)
 			/* Block all 11 modeled destinations, preserve unknown
 			 * upper bits for forward compatibility.
 			 */
-			ctrl = 0; /* YT9215S: tag-steering does NOT bypass isolation */
+			ctrl = GENMASK(YT921X_PORT_NUM - 1, 0);
 			res = yt921x_reg_write(priv, YT921X_PORTn_ISOLATION(port),
 					       ctrl);
 			if (res)
@@ -135,7 +135,7 @@ int yt921x_dsa_port_setup(struct dsa_switch *ds, int port)
 }
 
 int
-yt921x_dsa_port_change_master(struct dsa_switch *ds, int port,
+yt921x_dsa_port_change_conduit(struct dsa_switch *ds, int port,
 			       struct net_device *conduit,
 			       struct netlink_ext_ack *extack)
 {
@@ -969,6 +969,8 @@ static int yt921x_chip_setup_dsa(struct yt921x_priv *priv)
 	unsigned long cpu_ports_mask;
 	u64 ctrl64;
 	u32 ctrl;
+	u32 allowed_mask;
+	u32 blocked_mask;
 	int port;
 	int dt_primary_cpu_port = -1;
 	int dt_secondary_cpu_port = -1;
@@ -1176,7 +1178,7 @@ static int yt921x_chip_setup_dsa(struct yt921x_priv *priv)
 	 * keep only internal MCU (port 10) blocked, allow CPU/LAN/WAN delivery.
 	 * 0x7ff blackholes unknown unicast destined for router MAC on this board.
 	 */
-	ctrl = BIT(10); /* CPU port must receive unknown unicast floods */
+	ctrl = BIT(10) | priv->cpu_ports_mask;
 	res = yt921x_reg_write(priv, YT921X_FILTER_UNK_UCAST, ctrl);
 	if (res)
 		return res;
@@ -1186,8 +1188,8 @@ static int yt921x_chip_setup_dsa(struct yt921x_priv *priv)
 	/* Keep stock-safe defaults for flood filters until semantics are fully
 	 * mapped on YT9215.
 	 */
-	priv->flood_unk_ucast_base_mask = BIT(10);
-	priv->flood_mcast_base_mask = BIT(10);
+	priv->flood_unk_ucast_base_mask = BIT(10) | priv->cpu_ports_mask;
+	priv->flood_mcast_base_mask = BIT(10) | priv->cpu_ports_mask;
 	priv->flood_bcast_base_mask = BIT(10);
 	priv->flood_storm_mask = 0;
 	res = yt921x_apply_flood_filters_locked(priv);
@@ -1204,7 +1206,9 @@ static int yt921x_chip_setup_dsa(struct yt921x_priv *priv)
 	cpu_ports_mask = priv->cpu_ports_mask;
 	for_each_set_bit(port, &cpu_ports_mask, YT921X_PORT_NUM) {
 		ctrl &= ~YT921X_ACT_UNK_ACTn_M(port);
-		ctrl |= YT921X_ACT_UNK_ACTn_FORWARD(port);
+		ctrl |= yt921x_is_primary_cpu_port(priv, port) ?
+			YT921X_ACT_UNK_ACTn_DROP(port) :
+			YT921X_ACT_UNK_ACTn_FORWARD(port);
 	}
 	res = yt921x_reg_write(priv, YT921X_ACT_UNK_UCAST, ctrl);
 	if (res)
