@@ -1451,7 +1451,7 @@ yt921x_bridge_flags(struct yt921x_priv *priv, int port,
 
 		mask = YT921X_PORT_LEARN_DIS;
 		res = yt921x_reg_toggle_bits(priv, YT921X_PORTn_LEARN(port),
-					     mask, !learning);
+					     mask, true);
 		if (res)
 			return res;
 
