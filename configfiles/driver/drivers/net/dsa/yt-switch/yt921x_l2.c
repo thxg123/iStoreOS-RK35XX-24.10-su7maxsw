@@ -1294,7 +1294,7 @@ static int yt921x_userport_bridge(struct yt921x_priv *priv, int port)
 	int res;
 
 	mask = YT921X_PORT_LEARN_DIS;
-	res = yt921x_reg_set_bits(priv, YT921X_PORTn_LEARN(port), mask);
+	res = yt921x_reg_clear_bits(priv, YT921X_PORTn_LEARN(port), mask);
 	if (res)
 		return res;
 
@@ -1450,12 +1450,10 @@ yt921x_bridge_flags(struct yt921x_priv *priv, int port,
 		bool learning = flags.val & BR_LEARNING;
 
 		mask = YT921X_PORT_LEARN_DIS;
-/*
 		res = yt921x_reg_toggle_bits(priv, YT921X_PORTn_LEARN(port),
 					     mask, !learning);
 		if (res)
 			return res;
-*/
 
 		res = yt921x_l2_fdb_aging_port_en_set(priv, port, learning);
 		if (res)
