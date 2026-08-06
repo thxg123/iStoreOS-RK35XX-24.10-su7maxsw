@@ -5672,9 +5672,7 @@ static void stmmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
 	}
 
 	if (net_ratelimit())
-		netdev_err(dev,
-			   "transmit queue %u timed out, trigger tx err recovery\n",
-			   txqueue);
+		netdev_err(dev, "transmit queue %u timed out, trigger tx err recovery\n", txqueue);
 	stmmac_tx_err(priv, txqueue);
 }
 
