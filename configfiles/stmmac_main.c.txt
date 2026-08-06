@@ -5662,17 +5662,7 @@ static int stmmac_napi_poll_rxtx(struct napi_struct *napi, int budget)
 static void stmmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
 {
 	struct stmmac_priv *priv = netdev_priv(dev);
-
-	if (unlikely(!netif_running(dev)))
-		return;
-
-	if (unlikely(txqueue >= dev->num_tx_queues)) {
-		netdev_err_once(dev, "invalid tx queue %u\n", txqueue);
-		return;
-	}
-
-	if (net_ratelimit())
-		netdev_err(dev, "transmit queue %u timed out, trigger tx err recovery\n", txqueue);
+	netdev_err(dev, "transmit queue %u timed out, trigger tx err recovery\n", txqueue);
 	stmmac_tx_err(priv, txqueue);
 }
 
