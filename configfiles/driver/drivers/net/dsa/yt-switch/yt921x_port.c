@@ -1012,6 +1012,11 @@ yt921x_phylink_mac_link_up(struct dsa_switch *ds, int port,
 	struct yt921x_priv *priv = yt921x_to_priv(ds);
 	int res;
 
+if (dsa_is_cpu_port(ds, port)) {
+    tx_pause = false;
+    rx_pause = false;
+}
+
 	mutex_lock(&priv->reg_lock);
 	res = yt921x_port_up(priv, port, mode, interface, speed, duplex,
 			     tx_pause, rx_pause);

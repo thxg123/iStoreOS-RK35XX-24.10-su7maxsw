@@ -61,13 +61,13 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 	 * 【终极修复 1：强制线性化】
 	 * 解决 rk_gmac (stmmac) 驱动在 6.6 内核下处理多 frags 描述符链时
 	 * DMA 引擎挂死的已知 Bug。将所有碎片合并到线性数据区。
-	 */
 	if (skb_is_nonlinear(skb)) {
 		if (unlikely(skb_linearize(skb))) {
 			kfree_skb(skb);
 			return NULL;
 		}
 	}
+	 */
 
 	/* 防御性检查，确保 headroom 足够 */
 	if (unlikely(skb_cow_head(skb, YT921X_TAG_LEN) < 0)) {
@@ -92,7 +92,7 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 	 * 如果不修正，stmmac 会读错位置（偏差 8 字节），生成非法 DMA 描述符，
 	 * 导致 DMA 引擎 Bus Error 并彻底挂死。
 	 */
-	skb_reset_mac_header(skb);
+	skb->mac_header += YT921X_TAG_LEN;
 	skb_set_network_header(skb, nh_offset + YT921X_TAG_LEN);
 	if (th_set)
 		skb_set_transport_header(skb, th_offset + YT921X_TAG_LEN);
@@ -101,7 +101,6 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 	 * 【终极修复 3：软件校验和】
 	 * 必须在修正指针之后调用，确保能正确找到 IP/TCP 头。
 	 * 避开 stmmac 硬件校验和引擎因为 Tag 偏移而算错的问题。
-	 */
 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
 		if (unlikely(skb_checksum_help(skb))) {
 			kfree_skb(skb);
@@ -109,6 +108,11 @@ yt921x_tag_xmit(struct sk_buff *skb, struct net_device *netdev)
 		}
 	}
 	skb->ip_summed = CHECKSUM_NONE;
+	 */
+
+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+		skb->csum_start += YT921X_TAG_LEN;
+	}
 
 	tag = dsa_etype_header_pos_tx(skb);
 	tag[0] = htons(ETH_P_YT921X);
