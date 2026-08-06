@@ -1447,23 +1447,23 @@ yt921x_bridge_flags(struct yt921x_priv *priv, int port,
 	int res;
 
 	if (flags.mask & BR_LEARNING) {
-    /*
-     * Hardware learning is intentionally forced off on this driver.
-     * Ignore the requested BR_LEARNING value and keep LEARN_DIS set.
-     */
+		bool learning = flags.val & BR_LEARNING;
+
 		mask = YT921X_PORT_LEARN_DIS;
 		res = yt921x_reg_toggle_bits(priv, YT921X_PORTn_LEARN(port),
 					     mask, true);
 		if (res)
 			return res;
 
-		res = yt921x_l2_fdb_aging_port_en_set(priv, port, false);
+		res = yt921x_l2_fdb_aging_port_en_set(priv, port, learning);
 		if (res)
 			return res;
 
+		if (!learning) {
 			res = yt921x_fdb_flush_port(priv, port, false);
 			if (res)
 				return res;
+		}
 	}
 
 	refresh_flood = false;
