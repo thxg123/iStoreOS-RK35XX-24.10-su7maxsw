@@ -1146,7 +1146,7 @@
 				label = "cpu";
 				ethernet = <&gmac0>;
 				fixed-link {
-					speed = <2500>;
+					speed = <1000>;
 					full-duplex;
 				};
 			};
@@ -1195,7 +1195,7 @@
 				label = "cpu";
 				ethernet = <&gmac1>;
 				fixed-link {
-					speed = <2500>;
+					speed = <1000>;
 					full-duplex;
 				};
 			};
