@@ -50,7 +50,6 @@
 #define   SGMII_CTRL_MODE_SGMII_PHY			SGMII_CTRL_MODE(1)
 #define   SGMII_CTRL_MODE_1000BASEX			SGMII_CTRL_MODE(2)
 #define   SGMII_CTRL_MODE_100BASEX			SGMII_CTRL_MODE(3)
-#define   SGMII_CTRL_MODE_2500BASEX			SGMII_CTRL_MODE(4)
 #define   SGMII_CTRL_MODE_BASEX				SGMII_CTRL_MODE(5)
 #define   SGMII_CTRL_MODE_DISABLE			SGMII_CTRL_MODE(6)
 #define  SGMII_CTRL_LINK				BIT(4)
@@ -63,7 +62,6 @@
 #define   SGMII_CTRL_SPEED_10				SGMII_CTRL_SPEED(0)
 #define   SGMII_CTRL_SPEED_100				SGMII_CTRL_SPEED(1)
 #define   SGMII_CTRL_SPEED_1000				SGMII_CTRL_SPEED(2)
-#define   SGMII_CTRL_SPEED_2500				SGMII_CTRL_SPEED(4)
 
 #define PORT_CTRL(port)					(0x80100 + 4 * (port))
 #define  PORT_CTRL_FLOWCONTROL_AN			BIT(10)
@@ -81,7 +79,6 @@
 #define   PORT_CTRL_SPEED_10				PORT_CTRL_SPEED(0)
 #define   PORT_CTRL_SPEED_100				PORT_CTRL_SPEED(1)
 #define   PORT_CTRL_SPEED_1000				PORT_CTRL_SPEED(2)
-#define   PORT_CTRL_SPEED_2500				PORT_CTRL_SPEED(4)
 
 #define PORT_STATUS(port)				(0x80200 + 4 * (port))
 #define  PORT_STATUS_LINK				BIT(8)
@@ -98,7 +95,6 @@
 #define   PORT_STATUS_SPEED_10				PORT_STATUS_SPEED(0)
 #define   PORT_STATUS_SPEED_100				PORT_STATUS_SPEED(1)
 #define   PORT_STATUS_SPEED_1000			PORT_STATUS_SPEED(2)
-#define   PORT_STATUS_SPEED_2500			PORT_STATUS_SPEED(4)
 
 #define EXTIF_SEL					0x80394
 #define  EXTIF_SEL_EXTIF0_MASK				GENMASK(1, 1)
@@ -349,9 +345,6 @@ static void yt9215_init_ports(struct yt9215_priv *priv)
 					case 1000:
 						val |= PORT_CTRL_SPEED_1000;
 						break;
-					case 2500:
-						val |= PORT_CTRL_SPEED_2500;
-						break;
 				}
 			}
 			if (of_property_read_bool(fixed, "full-duplex")) {
@@ -375,7 +368,6 @@ static void yt9215_init_ports(struct yt9215_priv *priv)
 			case PHY_INTERFACE_MODE_INTERNAL:
 				break;
 			case PHY_INTERFACE_MODE_SGMII:
-			case PHY_INTERFACE_MODE_2500BASEX:
 				if (reg != 8)
 					break;
 
@@ -394,9 +386,6 @@ static void yt9215_init_ports(struct yt9215_priv *priv)
 					case PHY_INTERFACE_MODE_SGMII:
 						val |= SGMII_CTRL_MODE_SGMII_PHY;
 						break;
-					case PHY_INTERFACE_MODE_2500BASEX:
-						val |= SGMII_CTRL_MODE_2500BASEX;
-						break;
 					default: /* avoid warning */
 						break;
 				}
@@ -409,9 +398,6 @@ static void yt9215_init_ports(struct yt9215_priv *priv)
 						break;
 					case 1000:
 						val |= SGMII_CTRL_SPEED_1000;
-						break;
-					case 2500:
-						val |= SGMII_CTRL_SPEED_2500;
 						break;
 				}
 				if (full_duplex)
@@ -596,8 +582,6 @@ static int yt9215_get_link(struct switch_dev *dev, int port,
 		link->speed = SWITCH_PORT_SPEED_100;
 	else if((val & PORT_STATUS_SPEED_MASK) == PORT_STATUS_SPEED_1000)
 		link->speed = SWITCH_PORT_SPEED_1000;
-	else if((val & PORT_STATUS_SPEED_MASK) == PORT_STATUS_SPEED_2500)
-		link->speed = SWITCH_PORT_SPEED_2500;
 	else
 		link->speed = SWITCH_PORT_SPEED_UNKNOWN;
 
