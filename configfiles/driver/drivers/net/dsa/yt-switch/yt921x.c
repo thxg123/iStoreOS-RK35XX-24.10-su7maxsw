@@ -11,25 +11,6 @@
 
 #include "yt921x_internal.h"
 
-static void yt921x_dsa_tx_timeout(struct net_device *dev, unsigned int txqueue)
-{
-    struct dsa_port *dp = dsa_slave_to_port(dev);
-    struct yt921x_priv *priv = dsa_to_priv(dp->ds);
-    struct device *dev_d = yt921x_dev(priv);
-
-    dev_warn(dev_d, "TX timeout on port %d, queue %d - resetting port\n",
-             dp->index, txqueue);
-
-    mutex_lock(&priv->reg_lock);
-    yt921x_port_down(priv, dp->index);
-    yt921x_port_up(priv, dp->index, 0, PHY_INTERFACE_MODE_INTERNAL,
-                   SPEED_1000, DUPLEX_FULL, false, false);
-    mutex_unlock(&priv->reg_lock);
-
-    WRITE_ONCE(priv->ports[dp->index].port_up, true);
-    netif_wake_queue(dev);
-}
-
 static int yt921x_hwmon_read_temp(struct yt921x_priv *priv, long *temp)
 {
 	u32 reg;
@@ -253,7 +234,6 @@ static const struct dsa_switch_ops yt921x_dsa_switch_ops = {
 	.teardown		= yt921x_dsa_teardown,
 	.devlink_param_get	= yt921x_devlink_param_get,
 	.devlink_param_set	= yt921x_devlink_param_set,
-	.tx_timeout       = yt921x_dsa_tx_timeout,
 };
 
 static netdev_features_t
