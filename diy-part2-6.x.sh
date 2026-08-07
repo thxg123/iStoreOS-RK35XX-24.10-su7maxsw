@@ -20,11 +20,10 @@ cp -a $GITHUB_WORKSPACE/configfiles/etc/* package/base-files/files/etc/
 # 追加自定义内核配置项
 echo "CONFIG_PSI=y
 CONFIG_KPROBES=y
-CONFIG_NET_DSA=y
-CONFIG_NET_DSA_YT921X=y
-CONFIG_NET_DSA_TAG_YT921X=y
-CONFIG_NET_DSA_YT921X_DEBUG=n
-CONFIG_NET_DSA_YT921X_CR881X=n" >> target/linux/rockchip/armv8/config-6.6
+CONFIG_YT9215_PHY=y
+CONFIG_BRIDGE_VLAN_FILTERING=y
+CONFIG_LEDS_GPIO=y
+CONFIG_SWCONFIG_LEDS=y" >> target/linux/rockchip/armv8/config-6.6
 cat target/linux/rockchip/armv8/config-6.6
 
 
@@ -67,17 +66,9 @@ cp -a $GITHUB_WORKSPACE/configfiles/driver/* target/linux/generic/files
 ls target/linux/generic/files
 
 
-cp -f $GITHUB_WORKSPACE/configfiles/driver/999-01-net-dsa-add-yt921x-header-defs.patch target/linux/rockchip/patches-6.6/999-01-net-dsa-add-yt921x-header-defs.patch
-
-
 # cp -f $GITHUB_WORKSPACE/configfiles/netdevices.mk package/kernel/linux/modules/netdevices.mk
 
 
 # 启动时执行初始化脚本
 # cp -f $GITHUB_WORKSPACE/configfiles/g98_init package/base-files/files/etc/init.d/g98_init
 # chmod 755 package/base-files/files/etc/init.d/g98_init
-
-
-# cp -f $GITHUB_WORKSPACE/configfiles/stmmac_main.c.txt stmmac_main.c.txt
-# cp -f $GITHUB_WORKSPACE/configfiles/Makefile-dsa.txt target/linux/rockchip/Makefile
-ls
