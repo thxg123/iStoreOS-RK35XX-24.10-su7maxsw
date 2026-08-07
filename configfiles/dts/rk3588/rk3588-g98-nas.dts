@@ -1111,7 +1111,7 @@
 	status = "okay";
 
 	// Motorcomm YT9215
-	yt9215s0: switch@1d {
+	yt9215_0: switch@1d {
 		compatible = "motorcomm,yt9215-smi";
 		reg = <29>;
 		switchid = <0>;
@@ -1160,7 +1160,7 @@
 	status = "okay";
 
 	// Motorcomm YT9215
-	yt9215s1: switch@1d {
+	yt9215_1: switch@1d {
 		compatible = "motorcomm,yt9215-smi";
 		reg = <29>;
 		switchid = <1>;
