@@ -1105,18 +1105,18 @@
 	status = "okay";
 };
 
-    &yt921x-preinit0 {
-        compatible = "phoenix,yt9215s-preinit";
-        motorcomm,mdio = <&mdio1>;
-        motorcomm,id = <0>;
-        motorcomm,smi-id = <0>;
-        status = "okay";
-    };
+&yt921x-preinit0 {
+	compatible = "phoenix,yt9215s-preinit";
+	motorcomm,mdio = <&mdio1>;
+	motorcomm,id = <0>;
+	motorcomm,smi-id = <0>;
+	status = "okay";
+};
 
-    &yt921x-preinit1 {
-        compatible = "phoenix,yt9215s-preinit";
-        motorcomm,mdio = <&mdio0>;
-        motorcomm,id = <1>;
-        motorcomm,smi-id = <0>;
-        status = "okay";
-    };
+&yt921x-preinit1 {
+	compatible = "phoenix,yt9215s-preinit";
+	motorcomm,mdio = <&mdio0>;
+	motorcomm,id = <1>;
+	motorcomm,smi-id = <0>;
+	status = "okay";
+};
