@@ -1121,6 +1121,9 @@
 		reset-deassert-us = <50000>; /* 50ms */
 
 		ports {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
 			port@0 {
 				reg = <0>;
 				label = "lan1";
@@ -1171,6 +1174,9 @@
 		reset-deassert-us = <50000>; /* 50ms */
 
 		ports {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
 			port@0 {
 				reg = <0>;
 				label = "lan5";

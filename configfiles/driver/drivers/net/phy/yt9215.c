@@ -731,6 +731,13 @@ static int yt9215_smi_probe(struct mdio_device *mdiodev)
 	static int index;
 	u32 chipid;
 	int ret;
+	
+	msleep(500);
+
+/*
+	if (!mdiodev->bus->priv)
+        return -EPROBE_DEFER;
+*/
 
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if(!priv)
