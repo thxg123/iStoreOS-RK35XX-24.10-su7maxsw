@@ -63,6 +63,10 @@ cp -f $GITHUB_WORKSPACE/configfiles/init.sh target/linux/rockchip/armv8/base-fil
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
 
+cp -a $GITHUB_WORKSPACE/configfiles/driver2/* target/linux/generic/files
+ls target/linux/generic/files
+
+
 # cp -f $GITHUB_WORKSPACE/configfiles/netdevices.mk package/kernel/linux/modules/netdevices.mk
 
 
