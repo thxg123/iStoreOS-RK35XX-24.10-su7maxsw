@@ -29,6 +29,8 @@
 		ethernet1 = &gmac1;
 		ethernet2 = &pcie_eth2;
 		ethernet3 = &pcie_eth3;
+		mdio0 = &mdio0;
+		mdio1 = &mdio1;
 	};
 
 	yt921x-preinit0 {
