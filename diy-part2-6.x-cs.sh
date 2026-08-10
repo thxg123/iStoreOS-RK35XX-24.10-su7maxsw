@@ -20,7 +20,7 @@ cp -a $GITHUB_WORKSPACE/configfiles/etc/* package/base-files/files/etc/
 # 追加自定义内核配置项
 echo "CONFIG_PSI=y
 CONFIG_KPROBES=y
-CONFIG_YT9215_PHY=y
+CONFIG_YT9215_SWITCH=y
 CONFIG_BRIDGE_VLAN_FILTERING=y
 CONFIG_LEDS_GPIO=y
 CONFIG_SWCONFIG_LEDS=y" >> target/linux/rockchip/armv8/config-6.6
