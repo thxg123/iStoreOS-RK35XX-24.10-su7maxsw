@@ -1131,7 +1131,7 @@
 
 	// Motorcomm YT9215
 	yt9215_1: switch@1d {
-		compatible = "motorcomm,yt9215-smi";
+		compatible = "motorcomm,yt9215s";
 		reg = <29>;
 		reset-gpios = <&gpio4 RK_PB3 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <10000>; /* 10ms */
