@@ -36,7 +36,7 @@ chmod 755 package/base-files/files/bin/coremark.sh
 
 # 复制dts设备树文件到指定目录下
 cp -a $GITHUB_WORKSPACE/configfiles/dts/rk3588/* target/linux/rockchip/dts/rk3588/
-cp -f target/linux/rockchip/dts/rk3588/rk3588-g98-nas-cs.dts target/linux/rockchip/dts/rk3588/rk3588-g98-nas.dts
+cp -f target/linux/rockchip/dts/rk3588/rk3588-g98-nas-bf.dts target/linux/rockchip/dts/rk3588/rk3588-g98-nas.dts
 
 
 # iStoreOS-settings
@@ -63,7 +63,7 @@ cp -f $GITHUB_WORKSPACE/configfiles/init.sh target/linux/rockchip/armv8/base-fil
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
 
-cp -a $GITHUB_WORKSPACE/configfiles/driver2/* target/linux/generic/files
+cp -a $GITHUB_WORKSPACE/configfiles/driver3/* target/linux/generic/files
 ls target/linux/generic/files
 
 
