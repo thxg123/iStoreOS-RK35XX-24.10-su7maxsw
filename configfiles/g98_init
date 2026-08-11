@@ -23,7 +23,7 @@ start() {
 
             sleep 60
 
-            if ! dmesg | grep -q -E "net f0000000|NFSD: starting"; then
+            if ! dmesg | grep -q "net f0000000" || ! dmesg | grep -q "NFSD: starting"; then
                 sleep 60
             fi
 
