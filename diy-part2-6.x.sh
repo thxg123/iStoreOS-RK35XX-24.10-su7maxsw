@@ -66,7 +66,7 @@ cp -a $GITHUB_WORKSPACE/configfiles/driver/* target/linux/generic/files
 ls target/linux/generic/files
 
 
-sed -i '/for e in \$val; do json_add_string "" "\$e"; done/{n;s/json_close_array/json_close_array\n\t\t\tjson_delete "device"/}' package/base-files/files/lib/functions/uci-defaults.sh
+# sed -i '/for e in \$val; do json_add_string "" "\$e"; done/{n;s/json_close_array/json_close_array\n\t\t\tjson_delete "device"/}' package/base-files/files/lib/functions/uci-defaults.sh
 
 
 # cp -f $GITHUB_WORKSPACE/configfiles/netdevices.mk package/kernel/linux/modules/netdevices.mk
