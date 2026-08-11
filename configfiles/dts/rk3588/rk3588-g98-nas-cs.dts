@@ -957,6 +957,15 @@
 	status = "okay";
 };
 
+/* uart7m2 (feba0000) muxes to GPIO1_PB4/PB5, which conflicts with
+ * pcie2x1l0 PERST# (pcie2_0_rst = GPIO1_PB4). If uart7 probes, the
+ * pcie2x1l0 host bridge loses the pinctrl request and fails to probe,
+ * taking the first 2.5G NIC down with it. Keep it disabled.
+ */
+&uart7 {
+	status = "disabled";
+};
+
 /* ===== USB ===== */
 &u2phy0 {
 	status = "okay";
