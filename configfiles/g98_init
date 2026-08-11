@@ -22,6 +22,11 @@ start() {
             fi
 
             sleep 60
+
+            if ! dmesg | grep -q "net f0000000"; then
+                sleep 60
+            fi
+
             echo fe1b0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/unbind
             echo fe1c0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/unbind
 
