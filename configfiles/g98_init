@@ -11,13 +11,15 @@ start() {
     local board=$(board_name)
     case "$board" in
         bdy,g98-nas)
+            echo fe1b0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/unbind
+            echo fe1c0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/unbind
+            
+            sleep 3
+            
+            echo fe1b0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/bind
+            echo fe1c0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/bind
 
             if ! [ -s /etc/config/g98_init_lock ]; then
-# cat <<EOF > /etc/config/g98_init_lock
-# true
-# EOF
-                # rm -f /etc/config/network
-                # /etc/init.d/network restart
                 echo "true"
             else
                 echo "false"

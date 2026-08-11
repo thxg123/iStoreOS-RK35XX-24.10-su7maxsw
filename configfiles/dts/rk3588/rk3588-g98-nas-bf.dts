@@ -1137,7 +1137,7 @@
 		reset-assert-us = <10000>; /* 10ms */
 		reset-deassert-us = <150000>; /* 150ms */
 		motorcomm,num-ports = <5>;
-		motorcomm,cpu-port = <4>;
+		motorcomm,cpu-port = <8>;
 		motorcomm,id = <1>;
 		motorcomm,port-map = <5 6 7 8 9>;
 	};
