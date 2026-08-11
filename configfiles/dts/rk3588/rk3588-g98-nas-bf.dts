@@ -1119,7 +1119,7 @@
 		reg = <0x1d>;
 		reset-gpios = <&gpio3 RK_PD0 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <10000>; /* 10ms */
-		reset-deassert-us = <150000>; /* 150ms */
+		reset-deassert-us = <50000>; /* 50ms */
 		motorcomm,num-ports = <5>;
 		motorcomm,cpu-port = <4>;
 		motorcomm,id = <0>;
@@ -1141,7 +1141,7 @@
 		reg = <0x1d>;
 		reset-gpios = <&gpio4 RK_PB3 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <10000>; /* 10ms */
-		reset-deassert-us = <150000>; /* 150ms */
+		reset-deassert-us = <50000>; /* 50ms */
 		motorcomm,num-ports = <5>;
 		motorcomm,cpu-port = <4>;
 		motorcomm,id = <1>;
