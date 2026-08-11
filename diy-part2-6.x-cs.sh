@@ -67,6 +67,9 @@ cp -a $GITHUB_WORKSPACE/configfiles/driver3/* target/linux/generic/files
 ls target/linux/generic/files
 
 
+cp -f $GITHUB_WORKSPACE/configfiles/userpatches/999-02-fix-uci-defaults-lan-duplicate.patch target/linux/rockchip/patches-6.6/999-02-fix-uci-defaults-lan-duplicate.patch
+
+
 # cp -f $GITHUB_WORKSPACE/configfiles/netdevices.mk package/kernel/linux/modules/netdevices.mk
 
 
