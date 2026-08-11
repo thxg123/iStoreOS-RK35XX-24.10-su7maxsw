@@ -1106,6 +1106,9 @@
 
 /* ===== Switch ===== */
 &mdio0 {
+	compatible = "snps,dwmac-mdio";
+	#address-cells = <0x01>;
+	#size-cells = <0x00>;
 	pinctrl-0 = <&mdio0_pins>;
 	pinctrl-names = "default";
 	status = "okay";
@@ -1125,6 +1128,9 @@
 };
 
 &mdio1 {
+	compatible = "snps,dwmac-mdio";
+	#address-cells = <0x01>;
+	#size-cells = <0x00>;
 	pinctrl-0 = <&mdio1_pins>;
 	pinctrl-names = "default";
 	status = "okay";
