@@ -42,14 +42,10 @@ ucidef_set_interface() {
 		[ "$opt" = "device" -a "$val" != "${val/ //}" ] && {
 			json_select_array "ports"
 
-			local idx=0 p seen=" "
-			while json_is_a $idx string; do
-				json_get_var p "$idx"; seen="$seen$p "; idx=$((idx + 1))
-			done
-
-			for e in $val; do
-				[ -n "${seen##* $e *}" ] && json_add_string "" "$e" && seen="$seen$e "
-			done
+			local keys p seen=" "
+			json_get_keys keys
+			for k in $keys; do json_get_var p "$k"; seen="$seen$p "; done
+			for e in $val; do [ -n "${seen##* $e *}" ] && json_add_string "" "$e" && seen="$seen$e "; done
 
 			json_close_array
 		} || {

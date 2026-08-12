@@ -67,13 +67,10 @@ ls target/linux/generic/files
 
 
 sed -i '/for e in \$val; do json_add_string "" "\$e"; done/c\
-\n\t\t\tlocal idx=0 p seen=" "\
-\t\t\twhile json_is_a $idx string; do\
-\t\t\t\tjson_get_var p "$idx"; seen="$seen$p "; idx=$((idx + 1))\
-\t\t\tdone\n\
-\t\t\tfor e in $val; do\
-\t\t\t\t[ -n "${seen##* $e *}" ] \&\& json_add_string "" "$e" \&\& seen="$seen$e "\
-\t\t\tdone\n' package/base-files/files/lib/functions/uci-defaults.sh
+\n\t\t\tlocal keys p seen=" "\
+\t\t\tjson_get_keys keys\
+\t\t\tfor k in $keys; do json_get_var p "$k"; seen="$seen$p "; done\
+\t\t\tfor e in $val; do [ -n "${seen##* $e *}" ] && json_add_string "" "$e" && seen="$seen$e "; done\n' package/base-files/files/lib/functions/uci-defaults.sh
 # cp -f $GITHUB_WORKSPACE/configfiles/uci-defaults.sh package/base-files/files/lib/functions/uci-defaults.sh
 
 
