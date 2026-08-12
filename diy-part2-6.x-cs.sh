@@ -79,5 +79,5 @@ sed -i '/for e in \$val; do json_add_string "" "\$e"; done/c\
 
 
 # 启动时执行初始化脚本
-cp -f $GITHUB_WORKSPACE/configfiles/g98_init package/base-files/files/etc/init.d/g98_init
-chmod 755 package/base-files/files/etc/init.d/g98_init
+# cp -f $GITHUB_WORKSPACE/configfiles/g98_init package/base-files/files/etc/init.d/g98_init
+# chmod 755 package/base-files/files/etc/init.d/g98_init
