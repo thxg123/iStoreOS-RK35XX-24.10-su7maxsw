@@ -23,8 +23,8 @@ start() {
 
             sleep 60
 
-            if ! dmesg | grep -q "net f0000000" || ! dmesg | grep -q "NFSD: starting"; then
-                sleep 30
+            if ! dmesg | grep -q "MAC_VLAN_Tag_Filter"; then
+                sleep 20
             fi
 
             echo fe1b0000.ethernet > /sys/bus/platform/drivers/rk_gmac-dwmac/unbind
