@@ -26,17 +26,27 @@ int yt9215_reg_write(struct yt9215_priv *p, u32 reg, u32 val)
 
 	s = __smi_slot(p, SMI_SLOT_ADDR_WRITE);
 	ret = __mdiobus_write(bus, addr, s, (u16)(reg >> 16));
-	if (ret) goto out;
+	if (ret)
+		goto out;
+
 	ret = __mdiobus_write(bus, addr, s, (u16)(reg & 0xffff));
-	if (ret) goto out;
+	if (ret)
+		goto out;
 
 	s = __smi_slot(p, SMI_SLOT_DATA_WRITE);
 	ret = __mdiobus_write(bus, addr, s, (u16)(val >> 16));
-	if (ret) goto out;
+	if (ret)
+		goto out;
+
 	ret = __mdiobus_write(bus, addr, s, (u16)(val & 0xffff));
 
 out:
 	mutex_unlock(&bus->mdio_lock);
+
+	if (ret)
+		dev_err_ratelimited(p->dev, "MDIO write failed reg=0x%08x val=0x%08x err=%d\n",
+				    reg, val, ret);
+
 	return ret;
 }
 
@@ -52,22 +62,34 @@ int yt9215_reg_read(struct yt9215_priv *p, u32 reg, u32 *val)
 
 	s = __smi_slot(p, SMI_SLOT_ADDR_READ);
 	res = __mdiobus_write(bus, addr, s, (u16)(reg >> 16));
-	if (res) goto out;
+	if (res)
+		goto out;
+
 	res = __mdiobus_write(bus, addr, s, (u16)(reg & 0xffff));
-	if (res) goto out;
+	if (res)
+		goto out;
 
 	s = __smi_slot(p, SMI_SLOT_DATA_READ);
 	res = __mdiobus_read(bus, addr, s);
-	if (res < 0) goto out;
+	if (res < 0)
+		goto out;
 	v = (u16)res;
+
 	res = __mdiobus_read(bus, addr, s);
-	if (res < 0) goto out;
+	if (res < 0)
+		goto out;
 	v = (v << 16) | (u16)res;
 
 	*val = v;
 	res = 0;
+
 out:
 	mutex_unlock(&bus->mdio_lock);
+
+	if (res < 0)
+		dev_err_ratelimited(p->dev, "MDIO read failed reg=0x%08x err=%d\n",
+				    reg, res);
+
 	return res;
 }
 
@@ -75,8 +97,11 @@ int yt9215_reg_set(struct yt9215_priv *p, u32 reg, u32 mask, u32 set)
 {
 	u32 val;
 	int ret;
+
 	ret = yt9215_reg_read(p, reg, &val);
-	if (ret) return ret;
+	if (ret)
+		return ret;
+
 	val = (val & ~mask) | (set & mask);
 	return yt9215_reg_write(p, reg, val);
 }
@@ -88,28 +113,35 @@ int yt9215_phy_write(struct yt9215_priv *p, u8 phy, u32 reg, u16 val)
 
 	if (reg > 0x1f) {
 		ret = yt9215_phy_write(p, phy, 0x1e, (u16)reg);
-		if (ret) return ret;
+		if (ret)
+			return ret;
 		return yt9215_phy_write(p, phy, 0x1f, val);
 	}
 
-	addr_ctrl = ((u32)(phy & 0x1f) << 21) |
-		    ((u32)(reg & 0x1f) << 16) |
-		    (INT_IF_OP_WRITE << 2);
+	addr_ctrl = ((u32)(phy & 0x1f) << 21) | ((u32)(reg & 0x1f) << 16) | (INT_IF_OP_WRITE << 2);
 
 	ret = yt9215_reg_write(p, YT9215_INT_IF_ADDR_CTRL, addr_ctrl);
-	if (ret) return ret;
+	if (ret)
+		return ret;
+
 	ret = yt9215_reg_write(p, YT9215_INT_IF_DATA_0, val);
-	if (ret) return ret;
+	if (ret)
+		return ret;
+
 	ret = yt9215_reg_write(p, YT9215_INT_IF_FRAME_CTRL, 1);
-	if (ret) return ret;
+	if (ret)
+		return ret;
 
 	for (i = 0; i < INT_IF_BUSY_WAIT_MAX; i++) {
 		u32 status;
 		ret = yt9215_reg_read(p, YT9215_INT_IF_FRAME_CTRL, &status);
-		if (ret) return ret;
-		if (!status) return 0;
+		if (ret)
+			return ret;
+		if (!status)
+			return 0;
 		udelay(1);
 	}
+
 	dev_err(p->dev, "PHY write timeout phy=%d reg=0x%04x\n", phy, reg);
 	return -ETIMEDOUT;
 }
@@ -121,31 +153,36 @@ int yt9215_phy_read(struct yt9215_priv *p, u8 phy, u32 reg, u16 *val)
 
 	if (reg > 0x1f) {
 		ret = yt9215_phy_write(p, phy, 0x1e, (u16)reg);
-		if (ret) return ret;
+		if (ret)
+			return ret;
 		return yt9215_phy_read(p, phy, 0x1f, val);
 	}
 
-	addr_ctrl = ((u32)(phy & 0x1f) << 21) |
-		    ((u32)(reg & 0x1f) << 16) |
-		    (INT_IF_OP_READ << 2);
+	addr_ctrl = ((u32)(phy & 0x1f) << 21) | ((u32)(reg & 0x1f) << 16) | (INT_IF_OP_READ << 2);
 
 	ret = yt9215_reg_write(p, YT9215_INT_IF_ADDR_CTRL, addr_ctrl);
-	if (ret) return ret;
+	if (ret)
+		return ret;
+
 	ret = yt9215_reg_write(p, YT9215_INT_IF_FRAME_CTRL, 1);
-	if (ret) return ret;
+	if (ret)
+		return ret;
 
 	for (i = 0; i < INT_IF_BUSY_WAIT_MAX; i++) {
 		u32 status;
 		ret = yt9215_reg_read(p, YT9215_INT_IF_FRAME_CTRL, &status);
-		if (ret) return ret;
+		if (ret)
+			return ret;
 		if (!status) {
 			ret = yt9215_reg_read(p, YT9215_INT_IF_DATA_1, &data);
-			if (ret) return ret;
+			if (ret)
+				return ret;
 			*val = (u16)data;
 			return 0;
 		}
 		udelay(1);
 	}
+
 	dev_err(p->dev, "PHY read timeout phy=%d reg=0x%04x\n", phy, reg);
 	return -ETIMEDOUT;
 }

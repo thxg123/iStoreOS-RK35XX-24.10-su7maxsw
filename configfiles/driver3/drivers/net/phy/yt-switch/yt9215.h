@@ -20,28 +20,28 @@
 #include "yt9215_regs.h"
 
 /* Maximum number of switch units (cascaded chips) */
-#define YT9215_MAX_UNITS		2
+#define YT9215_MAX_UNITS 2
 
 /* Link-state polling interval (milliseconds) */
-#define YT9215_LINK_POLL_MS		2000
+#define YT9215_LINK_POLL_MS 2000
 
 /* Default switch MDIO Clause-22 base address */
-#define YT9215_DEFAULT_MDIO_ADDR	0x1d
+#define YT9215_DEFAULT_MDIO_ADDR 0x1d
 
 /* Number of user ports (excluding CPU port) */
-#define YT9215_USER_PORTS		5
+#define YT9215_USER_PORTS 5
 
 /* Maximum internal PHY ports per chip */
-#define YT9215_MAX_INTERNAL_PHYS	8
+#define YT9215_MAX_INTERNAL_PHYS 8
 
 struct yt9215_priv {
 	struct device *dev;
 	struct switch_dev swdev;
 
 	/* MDIO / bus access */
-	struct mii_bus *host_mii;	/* Host MDIO bus (e.g. mdio0/mdio1) */
-	u8 unit_id;			/* Switch ID for cascade (motorcomm,id) */
-	u8 base_addr;			/* MDIO Clause-22 address (default 0x1d) */
+	struct mii_bus *host_mii; /* Host MDIO bus (e.g. mdio0/mdio1) */
+	u8 unit_id; /* Switch ID for cascade (motorcomm,id) */
+	u8 base_addr; /* MDIO Clause-22 address (default 0x1d) */
 
 	/* GPIO reset */
 	struct gpio_desc *reset_gpio;
@@ -55,16 +55,19 @@ struct yt9215_priv {
 	u8 num_ports;
 	u8 internal_phy_count;
 	bool vlan_enabled;
+
 	struct notifier_block netdev_nb;
 	bool sw_registered;
 	u8 port_map[YT9215_SWCONFIG_PORTS];
 
 	/* Per-port state */
 	struct switch_port_link linkbuf[YT9215_SWCONFIG_PORTS];
-
 	struct delayed_work link_work;
-	bool port_link[YT9215_SWCONFIG_PORTS];	/* cached per-port link */
+	bool port_link[YT9215_SWCONFIG_PORTS]; /* cached per-port link */
 	bool link_poll_on;
+
+	/* Dedicated workqueue to prevent blocking system workqueue under load */
+	struct workqueue_struct *link_wq;
 };
 
 int yt9215_swport(struct yt9215_priv *p, int swconfig_port);
